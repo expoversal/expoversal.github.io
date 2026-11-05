@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evalia Results</title>
+<!-- republished 5 November 2026 -->
+<meta name="description" content="Evalia tested on two real public tender evaluations: agreement with the panels, errors found by code, and an audit file anyone can verify.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+:root {
+  --g50: hsl(214 33% 98%); --g100: hsl(214 30% 95%); --g200: hsl(214 26% 90%); --g300: hsl(214 20% 82%);
+  --g400: hsl(214 15% 64%); --g500: hsl(214 13% 49%); --g600: hsl(214 17% 37%); --g700: hsl(214 24% 27%);
+  --g800: hsl(214 32% 18%); --g900: hsl(214 42% 11%);
+  --p100: hsl(211 92% 95%); --p200: hsl(211 86% 87%); --p500: hsl(211 72% 46%); --p600: hsl(211 74% 38%); --p700: hsl(211 78% 30%);
+  --a100: hsl(42 96% 91%); --a600: hsl(34 92% 40%); --a800: hsl(28 86% 25%);
+  --gr100: hsl(141 56% 92%); --gr600: hsl(150 62% 31%); --gr800: hsl(152 64% 20%);
+  --page: var(--g100); --surface: #fff; --well: var(--g50); --text: var(--g900); --text-2: var(--g600); --text-3: var(--g500);
+  --line: var(--g200); --primary: var(--p600); --primary-soft: var(--p100); --primary-text: var(--p700);
+  --warn-soft: var(--a100); --warn-text: var(--a800); --ok-soft: var(--gr100); --ok-text: var(--gr800);
+  --shadow-rgb: 214 42% 11%;
+  --sh1: 0 1px 3px hsl(var(--shadow-rgb) / .12), 0 1px 2px hsl(var(--shadow-rgb) / .20);
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --t12: .75rem; --t14: .875rem; --t16: 1rem; --t18: 1.125rem; --t20: 1.25rem; --t24: 1.5rem; --t30: 1.875rem;
+  --radius: 4px;
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --page: var(--g900); --surface: var(--g800); --well: hsl(214 40% 13%); --text: var(--g100); --text-2: var(--g300); --text-3: var(--g400);
+  --line: var(--g700); --primary: var(--p500); --primary-soft: hsl(213 60% 22%); --primary-text: var(--p200);
+  --warn-soft: hsl(34 45% 18%); --warn-text: hsl(42 95% 82%); --ok-soft: hsl(150 40% 16%); --ok-text: hsl(141 60% 82%);
+  --shadow-rgb: 214 60% 3%; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --page: var(--g900); --surface: var(--g800); --well: hsl(214 40% 13%); --text: var(--g100); --text-2: var(--g300); --text-3: var(--g400);
+  --line: var(--g700); --primary: var(--p500); --primary-soft: hsl(213 60% 22%); --primary-text: var(--p200);
+  --warn-soft: hsl(34 45% 18%); --warn-text: hsl(42 95% 82%); --ok-soft: hsl(150 40% 16%); --ok-text: hsl(141 60% 82%);
+  --shadow-rgb: 214 60% 3%; color-scheme: dark }
+* { box-sizing: border-box }
+html { -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--page); color: var(--text); font: 400 var(--t16)/1.55 var(--sans) }
+.wrap { max-width: 800px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7) }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); margin-bottom: var(--s4) }
+.word { font-weight: 600; font-size: var(--t20); letter-spacing: -.01em }
+.sub { color: var(--text-2); font-size: var(--t14) }
+header a { margin-left: auto; font-size: var(--t14); color: var(--primary-text) }
+h1 { font-size: var(--t30); line-height: 1.2; font-weight: 600; letter-spacing: -.02em; margin: var(--s5) 0 var(--s3) }
+.lead { font-size: var(--t18); color: var(--text-2); margin: 0 0 var(--s5); max-width: 62ch }
+.asof { font-size: var(--t12); color: var(--text-3); text-transform: uppercase; letter-spacing: .06em }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--sh1); padding: var(--s5); margin-bottom: var(--s5) }
+h2 { font-size: var(--t20); font-weight: 600; margin: 0 0 var(--s2); line-height: 1.3 }
+.card > p:first-of-type { margin-top: 0 }
+p { margin: var(--s3) 0; max-width: 68ch }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--s3); margin: var(--s4) 0 0 }
+.kpi { background: var(--well); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4) }
+.kpi .v { font-size: var(--t24); font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums }
+.kpi .l { font-size: var(--t14); color: var(--text-2) }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--s5); margin-top: var(--s4) }
+figure { margin: 0 }
+figcaption { font-size: var(--t14); color: var(--text-2); margin-top: var(--s2) }
+figure h3 { font-size: var(--t16); font-weight: 600; margin: 0 0 var(--s1) }
+figure .m { font-size: var(--t14); color: var(--text-2); margin: 0 0 var(--s2) }
+svg text { font-family: var(--sans); fill: var(--text-2); font-size: 12px }
+svg .moved { stroke: var(--primary); stroke-width: 2.5 }
+svg .same { stroke: var(--g400); stroke-width: 1.5 }
+svg .dot { fill: var(--surface); stroke: var(--text-2); stroke-width: 1.5 }
+svg .colhead { fill: var(--text); font-weight: 600 }
+.tablewrap { overflow-x: auto; margin-top: var(--s3) }
+table { border-collapse: collapse; width: 100%; font-size: var(--t14) }
+th, td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line) }
+th { font-weight: 600; color: var(--text-2); white-space: nowrap }
+td.n { font-variant-numeric: tabular-nums; white-space: nowrap }
+.tag { display: inline-block; font-size: var(--t12); font-weight: 600; padding: 0 var(--s2); border-radius: 999px; vertical-align: 1px; margin-right: var(--s1) }
+.tag.fact { background: var(--ok-soft); color: var(--ok-text) }
+.tag.interp { background: var(--primary-soft); color: var(--primary-text) }
+.tag.limit { background: var(--warn-soft); color: var(--warn-text) }
+ul { padding-left: 1.2em; margin: var(--s3) 0 }
+li { margin: var(--s2) 0; max-width: 68ch }
+code { font-family: var(--mono); font-size: .9em }
+footer { font-size: var(--t14); color: var(--text-2); margin-top: var(--s6) }
+footer a, .card a { color: var(--primary-text) }
+@media (max-width: 520px) { h1 { font-size: var(--t24) } .card { padding: var(--s4) } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span class="word">Evalia</span><span class="sub">AI reads the bids. Your panel decides.</span><a href="./">See the prototype</a></header>
+
+  <div class="asof">Results as of 5 November 2026</div>
+  <h1>Tested on two real public evaluations</h1>
+  <p class="lead">Evalia was run on two complete public tender evaluations, using the owners' own published documents and scores. It ranked the firms much as the panel did in one case and partly as the panel did in the other. In both, code checks caught errors that went unremarked, and every result can be verified from the documents alone.</p>
+
+  <section class="card">
+    <h2>What was tested</h2>
+    <p>Both cases are public records: the solicitation, every submission and each evaluator's scores were published by the owner. The model read one submission at a time and never saw the panel's scores. The measures and the thresholds for "agreement" were written down before any model run. Firms and evaluators are not named here.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">2</div><div class="l">complete evaluations, 14 firms</div></div>
+      <div class="kpi"><div class="v">974</div><div class="l">pages of submissions read</div></div>
+      <div class="kpi"><div class="v">454</div><div class="l">quotes checked against their pages</div></div>
+      <div class="kpi"><div class="v">$13.30</div><div class="l">model fees for both cases</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>How Evalia's ranking compares with the panel's</h2>
+    <p>Each line joins a firm's place in the panel's ranking (left) to its place in Evalia's (right). Flat lines mean the same place; blue lines mark the firms that moved.</p>
+    <div class="charts">
+      <figure>
+        <h3>Case A: consultant selection, Florida town</h3>
+        <p class="m">8 firms · 3 evaluators · rank correlation 0.88 to 0.92 over three runs</p>
+        <div id="chartA"></div>
+        <figcaption>Evalia's top four are the panel's top four, with the first two swapped, and the same firm is last. Panel order is by total points on the four criteria Evalia scored.</figcaption>
+      </figure>
+      <figure>
+        <h3>Case B: construction manager selection, state agency</h3>
+        <p class="m">6 contractors · 5 evaluators · rank correlation 0.55 to 0.60 over two runs</p>
+        <div id="chartB"></div>
+        <figcaption>Evalia agrees on the first, fourth and last firms; it places the panel's second on points, the eventual contract winner, fifth. Panel order is by total points; the panel's own consensus, by rank sums, swaps its second and third.</figcaption>
+      </figure>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Measure</th><th>Case A</th><th>Case B</th></tr></thead>
+        <tbody>
+          <tr><td>Rank correlation with the panel total (1 = same order)</td><td class="n">0.88 to 0.92</td><td class="n">0.55 to 0.60</td></tr>
+          <tr><td>Firms the panel selected that are in Evalia's top group</td><td class="n">4 of 5</td><td class="n">2 of 3</td></tr>
+          <tr><td>Rank correlation between pairs of evaluators</td><td class="n">0.61 to 0.70</td><td class="n">0.43 to 1.00</td></tr>
+          <tr><td>Rank correlation between identical repeat runs</td><td class="n">0.96</td><td class="n">0.99</td></tr>
+          <tr><td>Result against the thresholds set in advance</td><td>Agreement</td><td>Inconclusive</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><span class="tag interp">Interpretation</span> Evalia's agreement with individual evaluators falls within the range of the evaluators' agreement with each other. It behaves like a strict additional evaluator, not like an outlier. Where it differs, it says why: in case B, it marks the eventual winner down for key roles the solicitation required but the submission did not name, and for a risk plan that leaves out risks beyond the contractor's control, which an addendum asked for. Whether those readings are right needs a reading of the pages it cites.</p>
+  </section>
+
+  <section class="card">
+    <h2>What the checks by code found</h2>
+    <p>Arithmetic, dates, signatures and quotations are checked by code, never by the model. On real documents these checks found:</p>
+    <ul>
+      <li><span class="tag fact">Fact</span> <strong>A price error.</strong> One finalist's price form stated a fee $154 higher than its own percentage of the estimated construction cost gives, and a total $154 too high. The owner scored the corrected figures without recording the correction. Evalia found it without being told of it.</li>
+      <li><span class="tag fact">Fact</span> <strong>The panel's own arithmetic.</strong> Of 108 recomputations of the published scoresheet (weighted scores, totals, ranks, rank sums, interview totals and averages), 106 agree. The two differences, a blank cell worth zero and a column heading that names the same firm twice, change no outcome.</li>
+      <li><span class="tag fact">Fact</span> <strong>Unsigned forms.</strong> Required forms left unsigned on scanned pages of two real submissions, which the published scores did not reflect.</li>
+      <li><span class="tag fact">Fact</span> <strong>A missed requirement.</strong> A firm formed in October 2022 bidding against a ten-year experience requirement: one evaluator marked it down, two did not.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Anyone can verify the evaluation</h2>
+    <p>Each evaluation produces an audit file: the fingerprint of every document, every calculation and every model call. A separate check, run with only the documents and that file, needs no access to Evalia and no model. It confirms four things:</p>
+    <ul>
+      <li>the model was given exactly these documents, because each scoring prompt, rebuilt from the documents, matches the one recorded;</li>
+      <li>every score in a report is the model's recorded answer, unedited;</li>
+      <li>every quote is on the page it cites;</li>
+      <li>every calculation is right.</li>
+    </ul>
+    <p><span class="tag fact">Fact</span> On both cases the check reproduced all 36 scoring prompts and score records and all 454 quotes, with no differences. On altered copies it reported every change made, including a score raised by one point with the total adjusted to hide it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><span class="tag limit">Limit</span> Two cases and 14 firms rule out gross disagreement with a panel; they do not show how close Evalia's scores sit to a typical panel's.</li>
+      <li><span class="tag limit">Limit</span> Evalia scores more strictly than these panels did: its totals are lower even where its order agrees.</li>
+      <li><span class="tag limit">Limit</span> The interviews that decided case B are not public and could not be tested.</li>
+      <li><span class="tag limit">Limit</span> The audit file shows that its parts agree with each other and with the documents. It does not show when it was made; recording its fingerprint with the owner at the time would.</li>
+      <li><span class="tag limit">Limit</span> No client has used Evalia yet.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Sources: the owners' published solicitations, submissions and scoresheets. The test plans, with their thresholds fixed before each run, and the code are public in the <a href="https://github.com/expoversal/Evalia">Evalia repository</a> (docs/10 and docs/12). Evalia proposes; the panel decides every score.</p>
+  </footer>
+</div>
+<script>
+// Slope charts: panel rank (left) to Evalia rank (right), one line per firm; firms numbered by the panel's order.
+function slope(el, evalia) {
+  const n = evalia.length, row = 30, top = 34, h = top + (n - 1) * row + 20, xl = 92, xr = 232, w = 300;
+  const y = r => top + (r - 1) * row;
+  let s = `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Panel rank against Evalia rank for ${n} firms">`;
+  s += `<text class="colhead" x="${xl}" y="16" text-anchor="middle">Panel</text><text class="colhead" x="${xr}" y="16" text-anchor="middle">Evalia</text>`;
+  evalia.forEach((r, i) => {
+    const p = i + 1, cls = r === p ? "same" : "moved";
+    s += `<line class="${cls}" x1="${xl}" y1="${y(p)}" x2="${xr}" y2="${y(r)}"/>`;
+  });
+  evalia.forEach((r, i) => {
+    const p = i + 1;
+    s += `<text x="${xl - 12}" y="${y(p) + 4}" text-anchor="end">Firm ${p}</text>`;
+    s += `<circle class="dot" cx="${xl}" cy="${y(p)}" r="4"/><circle class="dot" cx="${xr}" cy="${y(r)}" r="4"/>`;
+  });
+  for (let r = 1; r <= n; r++) s += `<text x="${xr + 12}" y="${y(r) + 4}">${r}</text>`;
+  el.innerHTML = s + "</svg>";
+}
+// First runs. Firms in the panel's order by total points (case A: on the four judged criteria), as in the rank correlations.
+slope(document.getElementById("chartA"), [2, 1, 3, 4, 7, 6, 5, 8]);
+slope(document.getElementById("chartB"), [1, 5, 2, 4, 3, 6]);
+</script>
+</body>
+</html>
