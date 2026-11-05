@@ -44,6 +44,9 @@ header { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) v
 .word { font-weight: 600; font-size: var(--t20); letter-spacing: -.01em }
 .sub { color: var(--text-2); font-size: var(--t14) }
 header a { margin-left: auto; font-size: var(--t14); color: var(--primary-text) }
+header a.new { color: hsl(4 70% 44%); font-weight: 600 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) header a.new { color: hsl(4 80% 64%) } }
+:root[data-theme="dark"] header a.new { color: hsl(4 80% 64%) }
 h1 { font-size: var(--t30); line-height: 1.2; font-weight: 600; letter-spacing: -.02em; margin: var(--s5) 0 var(--s3) }
 .lead { font-size: var(--t18); color: var(--text-2); margin: 0 0 var(--s5); max-width: 62ch }
 .asof { font-size: var(--t12); color: var(--text-3); text-transform: uppercase; letter-spacing: .06em }
@@ -84,7 +87,7 @@ footer a, .card a { color: var(--primary-text) }
 </head>
 <body>
 <div class="wrap">
-  <header><span class="word">Evalia</span><span class="sub">AI reads the bids. Your panel decides.</span><a href="./">See the prototype</a><a href="changelog.html" style="margin-left:0">What's new</a></header>
+  <header><span class="word">Evalia</span><span class="sub">AI reads the bids. Your panel decides.</span><a href="./">See the prototype</a><a href="changelog.html" class="new" style="margin-left:0">What's new</a></header>
 
   <div class="asof">Results as of 5 November 2026</div>
   <h1>Tested on two real public evaluations</h1>
