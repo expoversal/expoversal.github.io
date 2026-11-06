@@ -309,7 +309,7 @@ const DEMO = location.hash.includes("demo");
 const present = (on) => document.documentElement.dataset.present = on ? "on" : "off";
 present(location.hash.includes("present"));
 const KEY = "evalia:" + D.context.sha256.slice(0, 16);
-const blank = () => ({ stage: 0, signoff: null, decisions: {}, editing: {}, tab: {}, status: {}, clar: {}, ack: false, mode: "client", bidder: 1, recommendation: null, approval: null, resolve: {}, dd: {}, method: "weighted", notices: null, blind: true, reveal: null, runs: 1 });
+const blank = () => ({ stage: 0, signoff: null, decisions: {}, editing: {}, tab: {}, status: {}, clar: {}, ack: false, mode: "client", bidder: 1, recommendation: null, approval: null, resolve: {}, dd: {}, method: "weighted", notices: null, blind: true, reveal: null, runs: 1, mode: "full", dateStyle: "long" });
 let state = blank();
 try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) state = Object.assign(blank(), saved, { mode: "client" }); } catch { /* storage unavailable */ }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable */ } };
@@ -337,9 +337,16 @@ function mask(t) {
 }
 const name = (n) => blindOn() && NAMES.includes(n) ? label(n) : short(n);
 const evaluator = () => $("#evaluator").value.trim();
-const nowText = () => { const d = new Date(); return `${d.getUTCDate()} ${d.toLocaleString("en-GB", { month: "long", timeZone: "UTC" })} ${d.getUTCFullYear()}, ${d.toISOString().slice(11, 16)} UTC`; };
-const clockText = (iso) => { if (!iso) return "—"; const [date, time] = String(iso).split("T"); const [y, m, d] = date.split("-");
-  return `${Number(d)} ${new Date(Date.UTC(y, m - 1, d)).toLocaleString("en-GB", { month: "long", timeZone: "UTC" })} ${y}, ${(time || "").slice(0, 5)}`; };
+// Dates a person reads carry the month as a word, in the procurement's style (evalia/engine/dates.py).
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const DATE_STYLES = { long: "5 November 2026", us: "November 5, 2026", iso: "2026-11-05", es: "5 de noviembre de 2026" };
+const dateText = (y, m, d, style = state.dateStyle || "long") => style === "us" ? `${MONTHS[m - 1]} ${d}, ${y}` : style === "iso" ? `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
+  : style === "es" ? `${d} de ${MESES[m - 1]} de ${y}` : `${d} ${MONTHS[m - 1]} ${y}`;
+const utcDate = (x) => dateText(x.getUTCFullYear(), x.getUTCMonth() + 1, x.getUTCDate());
+const nowText = () => { const d = new Date(); return `${utcDate(d)}, ${d.toISOString().slice(11, 16)} UTC`; };
+const clockText = (iso) => { if (!iso) return "—"; const [date, time] = String(iso).split("T"); const [y, m, d] = date.split("-").map(Number);
+  return `${dateText(y, m, d)}, ${(time || "").slice(0, 5)}`; };
 const NAMES = D.tenderers.map(t => t.name);
 const F = D.findings;
 const byId = Object.fromEntries(F.map(f => [f.id, f]));
@@ -519,7 +526,9 @@ V.engagement = () => intro("Engagement", `Evaluation of ${esc(D.context.title)},
         <td>${late ? '<span class="pill bad">After the deadline</span>' : '<span class="pill ok">Registered</span>'}</td></tr>`; }).join("")}</tbody></table></div>
       <div class="tiny">Deadline recorded as ${esc(D.context.deadline_text)}. Evalia records a late receipt and carries it into responsiveness; whether to admit the tender is the client's decision, not Evalia's.</div>
       <div class="notice" role="note" style="margin:0"><strong>Designed, not built.</strong> In version one the evaluator registers each file on this screen and assigns its type and tenderer. This prototype received the files directly, and everything above was read from them.</div></div>
-    ${runsCard()}
+    ${modeCard()}
+    ${compliance() ? "" : runsCard()}
+    ${datesCard()}
     <div class="card"><div class="card-head"><h2>How the evaluation runs</h2></div>
       <ul class="ticks"><li>Evalia reads the request for proposal and proposes the framework; the client signs it off before any tender is opened.</li><li>Tenders are opened and checked for responsiveness, then evaluated stream by stream: technical, commercial, contract and integrity.</li><li>Each finding cites its page and quote, and each quote is checked against the page. Arithmetic, thresholds and points are computed by code.</li><li>The evaluator accepts, rejects or modifies every finding, with a reason; clarifications go to tenderers; the panel signs the report.</li></ul></div>
     ${next(S("documents"), "Read the tender documents")}`;
@@ -768,7 +777,7 @@ V.award = () => {
   if (!top) return intro("Due diligence and award", "No tender is eligible for award.");
   const done = D.framework.due_diligence.filter((_, i) => (state.dd[i] || {}).ok).length;
   const reason = (n) => !admitted(n) ? "it was not admitted, having been received after the deadline" : !responsive(n) ? "it was not substantially responsive" : techPass(n) === false ? `it scored below the technical threshold of ${RULES.technical_pass} points` : `it ranked ${ranked.indexOf(n) + 1} of ${ranked.length}, with ${fmt(total(P[n]))} points against ${fmt(total(P[top]))}`;
-  const until = (() => { if (!state.notices) return null; const d = new Date(state.notices.iso); d.setUTCDate(d.getUTCDate() + (RULES.standstill_days || 0)); return `${d.getUTCDate()} ${d.toLocaleString("en-GB", { month: "long", timeZone: "UTC" })} ${d.getUTCFullYear()}`; })();
+  const until = (() => { if (!state.notices) return null; const d = new Date(state.notices.iso); d.setUTCDate(d.getUTCDate() + (RULES.standstill_days || 0)); return utcDate(d); })();
   return intro("Due diligence and award", `Before award, the panel verifies what the evaluation relied on for the preferred tenderer, ${esc(short(top)).replace(/\.$/, "")}. Then every tenderer is notified, and the contract is not signed until the standstill period of ${RULES.standstill_days} days has passed.`)
     + `<div class="card"><div class="card-head"><h2>Due diligence on ${esc(short(top))}</h2><span class="aside">${done} of ${D.framework.due_diligence.length} confirmed</span></div>
       ${D.framework.due_diligence.map((item, i) => { const r = state.dd[i] || {}; return `<div class="statusrow"><label class="small"><input type="checkbox" data-dd="${i}" ${r.ok ? "checked" : ""}> ${esc(item)}</label><input type="text" data-ddnote="${i}" placeholder="Note or reference" value="${esc(r.note || "")}"></div>`; }).join("")}</div>
@@ -792,7 +801,7 @@ V.report = () => {
     ${state.ack ? `<div class="card"><div class="card-head"><h2>Recommendation</h2><span class="aside">the panel's words</span></div><textarea id="recommendation" style="min-height:96px">${esc(state.recommendation)}</textarea>
       ${state.approval ? `<div class="ok-note">Approved by <strong>${esc(state.approval.by)}</strong>, panel chair, on ${esc(state.approval.at)}.</div>`
         : `<div class="actions"><input type="text" id="chair" placeholder="Panel chair's name" style="max-width:260px"><button class="btn" id="approve">Approve the report</button><span class="err" id="apperr"></span></div>`}</div>
-    <div class="card">${reportHTML(P, ranked)}<div class="actions"><button class="btn secondary" id="copymd">Copy as Markdown</button><button class="btn secondary" id="savejson">Download the decision record</button><span class="small muted" id="copied"></span></div></div>` : ""}`;
+    <div class="card">${reportHTML(P, ranked)}<div class="actions"><button class="btn secondary" id="copymd">Copy as Markdown</button><button class="btn secondary" id="savejson">Download the decision record</button><button class="btn secondary" id="saverecord">Download the evaluation record</button><button class="btn secondary" id="savedisclosure">Download the AI-use statement</button><span class="small muted" id="copied"></span></div></div>` : ""}`;
 };
 function reportHTML(P, ranked) {
   const log = Object.entries(state.decisions).map(([id, d]) => ({ id, ...d })).sort((a, b) => a.at.localeCompare(b.at));
@@ -809,7 +818,7 @@ function reportHTML(P, ranked) {
     <h3>Clarifications</h3><ul>${NAMES.flatMap(clarItems).filter(f => (state.clar[f.id] || {}).include !== false).map(f => { const c = state.clar[f.id] || {}; return `<li>${esc(short(f.subject))}: ${esc(f.clarify)} <span class="tiny">(${esc(c.status || "Draft")}${c.answer ? "; answer: " + esc(c.answer) : ""})</span></li>`; }).join("")}</ul>
     <h3>Decision log</h3><div class="scroll"><table><thead><tr><th>Time (UTC)</th><th>Finding</th><th>Decision</th><th class="num">Points</th></tr></thead><tbody>${log.map(d => `<tr><td class="hash tiny">${esc(d.at.slice(11, 19))}</td><td>${esc(short(byId[d.id].subject))}: ${esc(byId[d.id].title)}${d.reason ? `<div class="tiny">${esc(d.reason)}</div>` : ""}</td><td>${DONE[d.action]}</td><td class="num">${fmt(finalPoints(byId[d.id]))}</td></tr>`).join("")}</tbody></table></div>
     <h3>Not assessed</h3><ul>${D.framework.not_assessed.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
-    <h3>Method</h3><ul>${state.blind ? `<li>${state.reveal ? `Quality streams were scored blind, with tenderers shown as A, B and C; identities were revealed by ${esc(state.reveal.by)} on ${esc(state.reveal.at)} with ${state.reveal.open} findings still open.` : "Quality streams are being scored blind; identities have not yet been revealed."}</li>` : ""}<li>${(state.runs || 1) === 3 ? "Scores were proposed from three runs: the median for each criterion, with wide differences between runs flagged for the panel." : "Scores were proposed from one run."}</li><li>Every quote was checked against the page it cites.</li><li>Arithmetic, thresholds, points and ranking were computed by code, never by a model.</li><li>Methods used: ${esc([...new Set(F.map(f => f.method))].join("; "))}.</li><li>The evaluator acknowledged that AI-assisted findings can be wrong before producing this draft.</li></ul></div>`;
+    <h3>Method</h3><ul>${state.blind ? `<li>${state.reveal ? `Quality streams were scored blind, with tenderers shown as A, B and C; identities were revealed by ${esc(state.reveal.by)} on ${esc(state.reveal.at)} with ${state.reveal.open} findings still open.` : "Quality streams are being scored blind; identities have not yet been revealed."}</li>` : ""}${compliance() ? "<li>Compliance only: no score was proposed by AI.</li>" : ""}<li>${(state.runs || 1) === 3 ? "Scores were proposed from three runs: the median for each criterion, with wide differences between runs flagged for the panel." : "Scores were proposed from one run."}</li><li>Every quote was checked against the page it cites.</li><li>Arithmetic, thresholds, points and ranking were computed by code, never by a model.</li><li>Methods used: ${esc([...new Set(F.map(f => f.method))].join("; "))}.</li><li>The evaluator acknowledged that AI-assisted findings can be wrong before producing this draft.</li></ul></div>`;
 }
 function markdown() {
   const P = streamPoints(), ranked = NAMES.filter(eligible).sort((a, b) => total(P[b]) - total(P[a]));
@@ -819,6 +828,34 @@ function markdown() {
   L.push("", "## Findings");
   for (const f of F) { const d = state.decisions[f.id]; L.push("", `- **${f.subject}, ${f.stream}: ${f.title}** (${f.basis}; ${d.action}${d.reason ? ": " + d.reason : ""})`, `  ${f.detail}`); for (const e of f.evidence) L.push(`  - p. ${e.page}: "${e.quote}"`); }
   return L.join("\n");
+}
+
+// --- evaluation record and AI-use statement (scripts/export_record.py does the same for a real evaluation) ----------
+const DISPOSITION = { accept: "panel agreed", modify: "panel amended", reject: "panel rejected", score: "panel scored (no proposal)" };
+function evaluationRecord() {
+  const proposals = F.map(f => { const d = state.decisions[f.id] || {};
+    return { id: f.id, stream: f.stream, tenderer: f.subject, title: f.title, basis: f.basis, method: f.method, proposed_points: f.proposed_points ?? null,
+      quotes: f.evidence.length, quotes_found_on_page: f.evidence.filter(e => e.verified).length,
+      disposition: DISPOSITION[d.action] || "not reviewed", reason: d.reason || "", final_points: finalPoints(f) ?? null, decided_by: d.evaluator || null, decided_at: d.at || null }; });
+  const counts = {}; proposals.forEach(p => counts[p.disposition] = (counts[p.disposition] || 0) + 1);
+  return { procurement: D.context.reference, title: D.context.title, exported: new Date().toISOString().slice(0, 10), mode: state.mode || "full",
+    scoring_runs: state.runs || 1, date_style: state.dateStyle || "long", model: (D.context.engagement || {}).model_used || "none (prototype)",
+    signoff: state.signoff, approval: state.approval, dispositions: counts, proposals };
+}
+function disclosure() {
+  const r = evaluationRecord(), methods = [...new Set(F.map(f => f.method))], q = r.proposals.reduce((a, p) => [a[0] + p.quotes_found_on_page, a[1] + p.quotes], [0, 0]);
+  const departed = r.proposals.filter(p => p.disposition === "panel amended" || p.disposition === "panel rejected").length;
+  return [`# Statement on the use of AI: ${D.context.title}`, "", `${utcDate(new Date())}. Generated by Evalia from the evaluation record of request for proposal ${D.context.reference}, for its file.`, "",
+    "## How the findings were produced", "", ...methods.map(m => `- ${m}`), "", `Mode: ${r.mode}.${r.mode === "compliance-only" ? " No score of any kind was proposed by AI." : ""}`, "",
+    "## Which model, and where the documents went", "", `- ${r.model}`, "", "Documents are sent only to the provider and region permitted for this procurement; Evalia refuses a call rather than send it elsewhere.", "",
+    "## What people decided", "", ...Object.entries(r.dispositions).map(([k, v]) => `- ${k}: ${v}`), "",
+    `The panel amended or rejected ${departed} of ${r.proposals.length} findings, each with a reason in the evaluation record.${state.approval ? ` The report was approved by ${state.approval.by}, panel chair, on ${state.approval.at}.` : ""}`, "",
+    "## How the AI's work was checked", "", `- Quotes found word for word on the cited page by code: ${q[0]} of ${q[1]}.`, "- Arithmetic, totals, thresholds and rankings were computed by code, not by a model.", "",
+    "## Limits", "", "AI readings can be wrong. They were treated as proposals for the panel's review, never as decisions.", ""].join("\n");
+}
+function offer(text, name, type) {
+  if (window.top !== window) { navigator.clipboard?.writeText(text).then(() => { $("#copied").textContent = "Copied (downloads are not available in this viewer)."; }, () => { $("#copied").textContent = "Copying is blocked here."; }); return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 // --- tenderer profile -------------------------------------------------------------------------------------------------
@@ -863,7 +900,22 @@ const decide = (id, d) => { state.decisions[id] = { action: d.action, reason: d.
 // --- scoring runs ---------------------------------------------------------------------------------------------------
 // One run by default; three where a procurement needs steadier proposals. The choice is written to the case folder's
 // settings.yaml, which score_submissions.py reads (evalia/engine/settings.py).
-const settingsYaml = () => `# Evalia settings for this procurement (${D.context.reference}). Place in the case folder.\nscoring:\n  samples: ${state.runs || 1}\n`;
+const settingsYaml = () => `# Evalia settings for this procurement (${D.context.reference}). Place in the case folder.\nevaluation:\n  mode: ${compliance() ? "compliance-only" : "full"}\nscoring:\n  samples: ${state.runs || 1}\noutput:\n  date_style: ${state.dateStyle || "long"}\n`;
+const compliance = () => state.mode === "compliance-only";
+function modeCard() {
+  return `<div class="card"><div class="card-head"><h2>What Evalia does in this procurement</h2><span class="aside">${compliance() ? "compliance only" : "full evaluation (default)"}</span></div>
+    <div class="choice" role="group" aria-label="Evaluation mode">${[["full", "Full evaluation (default)"], ["compliance-only", "Compliance only"]].map(([v, t]) => `<button aria-pressed="${(state.mode || "full") === v}" data-mode="${v}">${t}</button>`).join("")}</div>
+    <dl class="kv"><dt>Full evaluation</dt><dd>Evalia checks compliance and arithmetic, and proposes scores for the panel's reference.</dd>
+    <dt>Compliance only</dt><dd>Evalia reads each tender against the requirements and checks the arithmetic, and proposes no score of any kind. The panel decides compliance in a matrix, with mandatory requirements read as not met first, and scores, if at all, without a proposal.</dd>
+    <dt>What it brings</dt><dd>An entry point for low-bid work and for clients not ready for AI-proposed scores. Every decision that departs from Evalia's reading, or treats tenderers in the same position differently, needs a reason before the record can close.</dd>
+    <dt>In both modes</dt><dd>Code checks the request for proposal's own scheme: points against the stated total, weights adding to 100 per cent, missing or duplicated criteria.</dd></dl>
+    <div class="notice" role="note" style="margin:0"><strong>Prototype.</strong> The points on these pages come from rules the client signed off, computed by code; no AI proposes a score here. Compliance only applies to AI-proposed scores in a real evaluation, where Evalia then refuses to score.</div></div>`;
+}
+function datesCard() {
+  return `<div class="card"><div class="card-head"><h2>How dates are written</h2><span class="aside">${esc(DATE_STYLES[state.dateStyle || "long"])}</span></div>
+    <div class="choice" role="group" aria-label="Date style">${Object.entries(DATE_STYLES).map(([k, ex]) => `<button aria-pressed="${(state.dateStyle || "long") === k}" data-datestyle="${k}">${esc(ex)}</button>`).join("")}</div>
+    <p class="small muted" style="margin:0">Every date a person reads carries the month as a word, so that 5 November cannot be read as 11 May. Dates already recorded keep the style they were written in; records for machines use ISO 8601.</p></div>`;
+}
 function runsCard() {
   const three = (state.runs || 1) === 3;
   return `<div class="card"><div class="card-head"><h2>How scores are proposed</h2><span class="aside">${three ? "three runs" : "one run (default)"}</span></div>
@@ -885,6 +937,8 @@ function render() {
   on("[data-resolve]", "onchange", el => { state.resolve[el.dataset.resolve] = el.value; save(); });
   if (sign) sign.onclick = () => { if (!evaluator()) { $("#signerr").textContent = "Enter your name under Evaluator before signing off."; return; }
     if (D.rfp_issues.some(i => !state.resolve[i.key])) { $("#signerr").textContent = "Choose the value that governs for each contradiction first."; return; } state.signoff = { by: evaluator(), at: nowText() }; save(); render(); };
+  on("[data-mode]", "onclick", b => { state.mode = b.dataset.mode; save(); render(); });
+  on("[data-datestyle]", "onclick", b => { state.dateStyle = b.dataset.datestyle; save(); render(); });
   on("[data-runs]", "onclick", b => { state.runs = +b.dataset.runs; save(); render(); });
   on("[data-settings]", "onclick", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([settingsYaml()], { type: "text/yaml" })); a.download = "settings.yaml"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); return false; });
   on("[data-tab]", "onclick", b => { const [s, i] = b.dataset.tab.split("|"); state.tab[s] = +i; save(); render(); });
@@ -915,8 +969,10 @@ function render() {
   const rec = $("#recommendation"); if (rec) rec.onchange = () => { state.recommendation = rec.value; save(); render(); };
   const approve = $("#approve"); if (approve) approve.onclick = () => { const by = $("#chair").value.trim(); if (!by) { $("#apperr").textContent = "Enter the panel chair's name."; return; } state.approval = { by, at: nowText() }; save(); render(); };
   const cp = $("#copymd"); if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(markdown()); $("#copied").textContent = "Copied."; } catch { $("#copied").textContent = "Copying is blocked here."; } };
+  const sr = $("#saverecord"); if (sr) sr.onclick = () => offer(JSON.stringify(evaluationRecord(), null, 1), `evalia-record-${D.context.reference}.json`, "application/json");
+  const sd = $("#savedisclosure"); if (sd) sd.onclick = () => offer(disclosure(), `ai-use-statement-${D.context.reference}.md`, "text/markdown");
   const sj = $("#savejson"); if (sj) sj.onclick = async () => {
-    const record = JSON.stringify({ engagement: D.context, signoff: state.signoff, status: state.status, decisions: state.decisions, blind: state.blind, reveal: state.reveal, scoring_runs: state.runs || 1, clarifications: state.clar, recommendation: state.recommendation, approval: state.approval }, null, 1);
+    const record = JSON.stringify({ engagement: D.context, signoff: state.signoff, status: state.status, decisions: state.decisions, blind: state.blind, reveal: state.reveal, mode: state.mode || "full", scoring_runs: state.runs || 1, date_style: state.dateStyle || "long", clarifications: state.clar, recommendation: state.recommendation, approval: state.approval }, null, 1);
     if (window.top !== window) { try { await navigator.clipboard.writeText(record); $("#copied").textContent = "Decision record copied (downloads are not available in this viewer)."; } catch { $("#copied").textContent = "Copying is blocked here."; } return; }
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([record], { type: "application/json" })); a.download = `evalia-decisions-${D.context.reference}.json`; a.click();
   };
