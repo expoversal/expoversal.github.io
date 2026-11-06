@@ -95,12 +95,12 @@ footer a, .card a { color: var(--primary-text) }
 
   <section class="card">
     <h2>What was tested</h2>
-    <p>Both cases are public records: the solicitation, every submission and each evaluator's scores were published by the owner. The model read one submission at a time and never saw the panel's scores. The measures and the thresholds for "agreement" were written down before any model run. Firms and evaluators are not named here.</p>
+    <p>All four cases are public records: the solicitation, every submission and each evaluator's scores were published by the owner. The model read one submission at a time and never saw the panel's scores. The measures and the thresholds for "agreement" were written down before any model run. Firms and evaluators are not named here.</p>
     <div class="kpis">
-      <div class="kpi"><div class="v">2</div><div class="l">complete evaluations, 14 firms</div></div>
-      <div class="kpi"><div class="v">974</div><div class="l">pages of submissions read</div></div>
-      <div class="kpi"><div class="v">454</div><div class="l">quotes checked against their pages</div></div>
-      <div class="kpi"><div class="v">$13.30</div><div class="l">model fees for both cases</div></div>
+      <div class="kpi"><div class="v">4</div><div class="l">complete evaluations, 32 firms</div></div>
+      <div class="kpi"><div class="v">1,752</div><div class="l">pages of submissions read</div></div>
+      <div class="kpi"><div class="v">807</div><div class="l">quotes checked against their pages</div></div>
+      <div class="kpi"><div class="v">$20.80</div><div class="l">model fees for all four cases</div></div>
     </div>
   </section>
 
@@ -120,16 +120,29 @@ footer a, .card a { color: var(--primary-text) }
         <div id="chartB"></div>
         <figcaption>Evalia agrees on the first, fourth and last firms; it places the panel's second on points, the eventual contract winner, fifth. Panel order is by total points; the panel's own consensus, by rank sums, swaps its second and third.</figcaption>
       </figure>
+      <figure>
+        <h3>Case C: construction manager selection, state college</h3>
+        <p class="m">13 contractors · 5 evaluators · rank correlation 0.725 (one run)</p>
+        <div id="chartC"></div>
+        <figcaption>Evalia's first two are the panel's first two, in the same order, and its last is the panel's last. The panel's third, the eventual contract winner, is fifth in Evalia's order (tied fifth on points). The panel ranked firms without criterion scores; panel order is its consensus by rank sums.</figcaption>
+      </figure>
+      <figure>
+        <h3>Case D: construction manager selection, state library</h3>
+        <p class="m">5 contractors · 7 evaluators · rank correlation −0.10 (one run)</p>
+        <div id="chartD"></div>
+        <figcaption>Evalia's five totals lie within three points of each other (78 to 81 of 100), so its order among them is close to arbitrary. The seven evaluators' own rankings agree with each other at −0.30 to 0.90. Panel order is its consensus by rank sums.</figcaption>
+      </figure>
     </div>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>Measure</th><th>Case A</th><th>Case B</th></tr></thead>
+        <thead><tr><th>Measure</th><th>Case A</th><th>Case B</th><th>Case C</th><th>Case D</th></tr></thead>
         <tbody>
-          <tr><td>Rank correlation with the panel total (1 = same order)</td><td class="n">0.88 to 0.92</td><td class="n">0.55 to 0.60</td></tr>
-          <tr><td>Firms the panel selected that are in Evalia's top group</td><td class="n">4 of 5</td><td class="n">2 of 3</td></tr>
-          <tr><td>Rank correlation between pairs of evaluators</td><td class="n">0.61 to 0.70</td><td class="n">0.43 to 1.00</td></tr>
-          <tr><td>Rank correlation between identical repeat runs</td><td class="n">0.96</td><td class="n">0.99</td></tr>
-          <tr><td>Result against the thresholds set in advance</td><td>Agreement</td><td>Inconclusive</td></tr>
+          <tr><td>Rank correlation with the panel (1 = same order)</td><td class="n">0.88 to 0.92</td><td class="n">0.55 to 0.60</td><td class="n">0.725</td><td class="n">−0.10</td></tr>
+          <tr><td>Firms the panel selected that are in Evalia's top group</td><td class="n">4 of 5</td><td class="n">2 of 3</td><td class="n">2 of 3</td><td class="n">2 of 3</td></tr>
+          <tr><td>Rank correlation between pairs of evaluators</td><td class="n">0.61 to 0.70</td><td class="n">0.43 to 1.00</td><td class="n">0.43 to 0.87</td><td class="n">−0.30 to 0.90</td></tr>
+          <tr><td>Rank correlation between Evalia and each evaluator</td><td class="n">within the pairs' range</td><td class="n">within the pairs' range</td><td class="n">0.47 to 0.81</td><td class="n">−0.67 to 0.82</td></tr>
+          <tr><td>Rank correlation between identical repeat runs</td><td class="n">0.96</td><td class="n">0.99</td><td class="n">not run</td><td class="n">not run</td></tr>
+          <tr><td>Result against the thresholds set in advance</td><td>Agreement</td><td>Inconclusive</td><td>Agreement</td><td>Too few distinct firms to judge</td></tr>
         </tbody>
       </table>
     </div>
@@ -174,13 +187,13 @@ footer a, .card a { color: var(--primary-text) }
       <li>every quote is on the page it cites;</li>
       <li>every calculation is right.</li>
     </ul>
-    <p><span class="tag fact">Fact</span> On both cases the check reproduced all 36 scoring prompts and score records and all 454 quotes, with no differences. On altered copies it reported every change made, including a score raised by one point with the total adjusted to hide it.</p>
+    <p><span class="tag fact">Fact</span> On cases A and B the check reproduced all 36 scoring prompts and score records and all 454 quotes, with no differences. On altered copies it reported every change made, including a score raised by one point with the total adjusted to hide it.</p>
   </section>
 
   <section class="card">
     <h2>Limits</h2>
     <ul>
-      <li><span class="tag limit">Limit</span> Two cases and 14 firms rule out gross disagreement with a panel; they do not show how close Evalia's scores sit to a typical panel's.</li>
+      <li><span class="tag limit">Limit</span> Four cases and 32 firms rule out gross disagreement with a panel; they do not show how close Evalia's scores sit to a typical panel's. Three of the four come from one state agency's forms.</li>
       <li><span class="tag limit">Limit</span> Evalia scores more strictly than these panels did: its totals are lower even where its order agrees.</li>
       <li><span class="tag limit">Limit</span> The interviews that decided case B are not public and could not be tested.</li>
       <li><span class="tag limit">Limit</span> The audit file shows that its parts agree with each other and with the documents. It does not show when it was made; recording its fingerprint with the owner at the time would.</li>
@@ -214,6 +227,9 @@ function slope(el, evalia) {
 // First runs. Firms in the panel's order by total points (case A: on the four judged criteria), as in the rank correlations.
 slope(document.getElementById("chartA"), [2, 1, 3, 4, 7, 6, 5, 8]);
 slope(document.getElementById("chartB"), [1, 5, 2, 4, 3, 6]);
+// Cases C and D: panel order by consensus (rank sums); Evalia ties broken by the panel's order.
+slope(document.getElementById("chartC"), [1, 2, 5, 8, 4, 7, 11, 3, 9, 10, 6, 12, 13]);
+slope(document.getElementById("chartD"), [2, 3, 5, 4, 1]);
 </script>
 </body>
 </html>
