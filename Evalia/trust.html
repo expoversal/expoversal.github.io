@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evalia trust documents</title>
+<meta name="description" content="What has changed in Evalia, newest first.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { --page: hsl(214 30% 95%); --surface: #fff; --text: hsl(214 42% 11%); --text-2: hsl(214 17% 37%); --text-3: hsl(214 13% 49%);
+  --line: hsl(214 26% 90%); --link: hsl(211 78% 30%); --sh: 0 1px 3px hsl(214 42% 11% / .12), 0 1px 2px hsl(214 42% 11% / .2);
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: hsl(214 42% 11%); --surface: hsl(214 32% 18%);
+  --text: hsl(214 30% 95%); --text-2: hsl(214 20% 82%); --text-3: hsl(214 15% 64%); --line: hsl(214 24% 27%); --link: hsl(211 86% 87%); color-scheme: dark } }
+:root[data-theme="dark"] { --page: hsl(214 42% 11%); --surface: hsl(214 32% 18%); --text: hsl(214 30% 95%); --text-2: hsl(214 20% 82%);
+  --text-3: hsl(214 15% 64%); --line: hsl(214 24% 27%); --link: hsl(211 86% 87%); color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--page); color: var(--text); font: 400 1rem/1.6 var(--sans) }
+.wrap { max-width: 800px; margin: 0 auto; padding: 32px 16px 48px }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 16px }
+.word { font-weight: 600; font-size: 1.25rem } .sub { color: var(--text-2); font-size: .875rem }
+header nav { margin-left: auto; font-size: .875rem; display: flex; gap: 12px }
+a { color: var(--link) }
+h1 { font-size: 1.875rem; line-height: 1.2; margin: 16px 0 8px; letter-spacing: -.02em }
+.lead { color: var(--text-2); font-size: 1.05rem; margin: 0 0 24px; max-width: 64ch }
+.card { background: var(--surface); border-radius: 4px; box-shadow: var(--sh); padding: 20px 24px; margin-bottom: 20px }
+h2 { font-size: 1.1rem; margin: 0 0 8px; color: var(--text-2); font-weight: 600 }
+ul { margin: 0; padding-left: 1.1em } li { margin: 10px 0; max-width: 70ch }
+@media (max-width: 520px) { h1 { font-size: 1.5rem } .card { padding: 16px } }
+</style>
+</head>
+<body><div class="wrap">
+<header><span class="word">Evalia</span><span class="sub">AI reads the bids. Your panel decides.</span>
+<nav><a href="index.html">Prototype</a><a href="results.html">Results</a><a href="changelog.html">What's new</a></nav></header>
+<h1>Trust documents</h1>
+<p class="lead">How Evalia handles a client's documents, what it may and may not be used for, the model profiles it runs on, and how to report an error. Issued 6 November 2026. Contents: <a href="#data-handling">Data-handling statement</a> · <a href="#acceptable-use">Acceptable use</a> · <a href="#system-card-anthropic-us">System card: model profile anthropic-us</a> · <a href="#system-card-self-hosted">System card: model profile self-hosted</a> · <a href="#feedback">Feedback and errors</a>.</p>
+<section class="card" id="data-handling"><h2>Data-handling statement</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong></p>
+<h3>Summary</h3>
+<p>Evalia is software that a client runs on its own computers. Tender documents stay where the client keeps them. Text from the documents leaves the client's computer only when Evalia asks an AI model to read it, and only to the model provider and region the client has permitted for that procurement. Evalia's staff have no access to a client's documents or results.</p>
+<h3>Where documents are kept</h3>
+<ul>
+<li>The client chooses the folder. Evalia finds it through one setting (<code>EVALIA_DATA_DIR</code>) and writes its results next to the documents, never into its own program files. <strong>Fact:</strong> the scripts that read documents refuse to run on any inside the program's folder (for example <code>read_solicitation.py</code>, <code>score_submissions.py</code>, <code>compliance.py</code>).</li>
+<li>Evalia sends nothing to Evalia's own servers: it has none. It collects no usage data. <strong>Fact:</strong> the program's only network calls are to the configured AI model (<code>evalia/engine/llm.py</code>).</li>
+</ul>
+<h3>What is sent to an AI provider, and where</h3>
+<ul>
+<li>Text of the solicitation and submissions, and images of scanned pages that have no text layer, are sent to the model when Evalia asks it to read them.</li>
+<li>Each procurement permits one or more model profiles, each with a provider and region. <strong>Fact:</strong> if a call would go to a profile the procurement does not permit, Evalia refuses it rather than send it elsewhere (<code>ResidencyRefused</code> in <code>evalia/engine/llm.py</code>).</li>
+<li>Two profiles exist today: <code>anthropic-us</code> (Anthropic's API, United States) and <code>self-hosted</code> (a model the client runs on its own infrastructure, so nothing leaves it).</li>
+<li>The provider's own terms govern what it does with what it receives. For <code>anthropic-us</code>, as checked on 6 November 2026:</li>
+<li><strong>Training.</strong> Anthropic's Commercial Terms state that "Anthropic may not train models on Customer Content from Services" (<a href="https://www.anthropic.com/legal/commercial-terms">Commercial Terms</a>, effective 17 June 2025).</li>
+<li><strong>Retention.</strong> Anthropic deletes API inputs and outputs within 30 days of receipt or generation, unless a longer period applies: up to two years where its automated safety systems flag a request, longer where the law or enforcement of its Usage Policy requires, and none where a zero-data-retention agreement is in place (<a href="https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-commercial-api-data">Anthropic privacy centre</a>, updated 1 July 2026).</li>
+<li>These are the provider's statements, not Evalia's; they are rechecked before each issue of this statement.</li>
+</ul>
+<h3>What is kept, and for how long</h3>
+<ul>
+<li>Every model call is kept in the procurement's folder: the prompt as sent, the model's raw answer, the model, region and time. This lets the client answer a records request or a protest with what the AI actually generated, not only what was used.</li>
+<li>Evaluators' decisions, reasons and the panel's records are kept in the same folder.</li>
+<li>Retention is the client's: Evalia does not delete the client's documents or records; it rewrites only its own output files when rerun. No retention schedule or legal hold is built into Evalia yet; it is planned (item L7 of the improvement report). Until then the client applies its own records policy to the folder.</li>
+</ul>
+<h3>Who can see what</h3>
+<ul>
+<li>The client's staff who can open the folder.</li>
+<li>Evalia's staff: no access, unless the client grants it explicitly and records that it did.</li>
+<li>Each procurement has its own folder, with its own record of model calls; Evalia passes nothing from one procurement to another. Bidder use, planned after version one, will follow the same rule.</li>
+</ul>
+<h3>Security</h3>
+<ul>
+<li>Evalia holds no credentials other than the AI provider key the client configures, read from the client's own environment.</li>
+<li>Evalia relies on the client's own controls for the folder: disk encryption, access permissions and backups.</li>
+<li>Evalia holds no security certification today (for example SOC 2 or GovRAMP). <strong>Interpretation:</strong> one becomes relevant only if Evalia is ever hosted for clients, not while it runs on their own computers.</li>
+</ul></section><section class="card" id="acceptable-use"><h2>Acceptable use</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong></p>
+<p>Evalia helps an evaluation panel read submissions against a solicitation. Its readings and proposals are aids to the panel's judgement, never a substitute for it.</p>
+<h3>Evalia may be used to</h3>
+<ul>
+<li>read a solicitation's criteria, points and requirements, and check its scheme for errors;</li>
+<li>locate, in each submission, the text that addresses each requirement and each criterion;</li>
+<li>check arithmetic, prices and tabulations;</li>
+<li>propose scores, with reasons and quotes, for the panel's reference, where the procurement permits proposed scores;</li>
+<li>prepare the panel's moderation pack, compliance matrix and record;</li>
+<li>let a bidder check its own submission against a published solicitation, without any score.</li>
+</ul>
+<h3>Evalia must not be used to</h3>
+<ul>
+<li>decide a score, a compliance finding, a ranking or an award without a person's review: every proposal must be accepted, amended or rejected by a named evaluator, with a reason where it is changed;</li>
+<li>score in a procurement set to compliance-only;</li>
+<li>process documents with a model provider or region the procurement does not permit;</li>
+<li>send one procurement's documents, results or examples into another;</li>
+<li>evaluate submissions against criteria the solicitation does not state;</li>
+<li>make decisions about individual people (for example, ranking named staff for employment) beyond reading the qualifications a solicitation asks for.</li>
+</ul>
+<h3>The evaluator's duties</h3>
+<ul>
+<li>Read the quoted text before relying on a proposal; a quote marked as not found on its page is not evidence.</li>
+<li>Give a reason whenever a decision departs from Evalia's reading, or treats bidders in the same position differently.</li>
+<li>Report errors (see <a href="#feedback">Feedback and errors</a>).</li>
+</ul></section><section class="card" id="system-card-anthropic-us"><h2>System card: model profile anthropic-us</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider</td>
+<td>Anthropic, through its API</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>United States</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>Set by the client's configuration (<code>EVALIA_MODEL</code>); the model each call actually used is recorded with the call</td>
+</tr>
+<tr>
+<td>Data sent</td>
+<td>Text from the solicitation and submissions; images of pages without a text layer</td>
+</tr>
+<tr>
+<td>Residency control</td>
+<td>Fails closed: a procurement that does not permit this profile gets no call</td>
+</tr>
+</tbody>
+</table>
+<h3>What the model does in Evalia</h3>
+<p>It reads and locates: criteria and points in a solicitation, the text in a submission that addresses each requirement and criterion, figures on price forms, and the text of scanned pages. Where the procurement permits, it proposes a score per criterion with reasons and quotes. It does no arithmetic that code can do: totals, thresholds, price scores and rankings are computed by code.</p>
+<h3>How its output is checked</h3>
+<ul>
+<li>Every quote it cites is checked by code against the page it names; a quote not found is marked so and is not treated as evidence.</li>
+<li>Proposed scores are within each criterion's range, on published criteria only (<code>evalia/engine/compliance.py</code>).</li>
+<li>An independent check (<code>verify_audit.py</code>) confirms, from the documents alone, that each recorded answer was given to exactly those documents.</li>
+</ul>
+<h3>Results so far</h3>
+<ul>
+<li><strong>Fact.</strong> Four public solicitations: criteria and points read correctly against the published scheme (docs/12 and the results page).</li>
+<li><strong>Fact.</strong> Two real evaluations compared with the published panels: rank correlation 0.88 to 0.92 on one, 0.49 to 0.60 on the other; runs agree with each other at 0.94 to 1.00 (docs/12).</li>
+<li><strong>Interpretation.</strong> Agreement with a panel varies by procurement; a proposal is a reference for the panel, not a prediction of its score.</li>
+</ul>
+<h3>Known limits</h3>
+<ul>
+<li>It can misread, miss text, or cite a page wrongly; the quote check catches wrong quotes, not missed ones.</li>
+<li>Scanned pages are transcribed by the model; text matched against a transcription is labelled as such, not as verified.</li>
+<li>Its proposals vary slightly between runs; three runs per submission can be set to steady them (docs/14).</li>
+</ul></section><section class="card" id="system-card-self-hosted"><h2>System card: model profile self-hosted</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider</td>
+<td>The client: any model served through an OpenAI-compatible endpoint the client runs</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>The client's own infrastructure (<code>local</code>)</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>Set by the client (<code>EVALIA_LOCAL_MODEL</code>, <code>EVALIA_LOCAL_ENDPOINT</code>)</td>
+</tr>
+<tr>
+<td>Data sent</td>
+<td>As for <code>anthropic-us</code>, but only to the client's endpoint</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fact.</strong> The profile exists in <code>config/profiles.yaml</code> and the gateway can call such an endpoint. <strong>Not yet tested:</strong> no evaluation has been run on a self-hosted model, so none of the results for <code>anthropic-us</code> carry over. The client should run the regression harness (<code>scripts/harness.py</code>) on its model before relying on it.</p></section><section class="card" id="feedback"><h2>Feedback and errors</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong></p>
+<p>Report an error in a reading, a proposal or a check to vfjhello@outlook.com. Please include the procurement's record export (<code>record/evaluation-record.json</code>), not the tender documents, unless the client has agreed to share them.</p>
+<p>What happens next:</p>
+<ol>
+<li>The report is acknowledged within two working days.</li>
+<li>Where the error can be reproduced on fictional documents, a test is added that fails until it is fixed.</li>
+<li>The fix is listed on the public changelog, without client or bidder names.</li>
+</ol>
+<p>Evalia's staff see a client's documents only if the client sends them and records that it did.</p></section>
+</div></body></html>
