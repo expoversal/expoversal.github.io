@@ -309,7 +309,7 @@ const DEMO = location.hash.includes("demo");
 const present = (on) => document.documentElement.dataset.present = on ? "on" : "off";
 present(location.hash.includes("present"));
 const KEY = "evalia:" + D.context.sha256.slice(0, 16);
-const blank = () => ({ stage: 0, signoff: null, decisions: {}, editing: {}, tab: {}, status: {}, clar: {}, ack: false, mode: "client", bidder: 1, recommendation: null, approval: null, resolve: {}, dd: {}, method: "weighted", notices: null, blind: true, reveal: null });
+const blank = () => ({ stage: 0, signoff: null, decisions: {}, editing: {}, tab: {}, status: {}, clar: {}, ack: false, mode: "client", bidder: 1, recommendation: null, approval: null, resolve: {}, dd: {}, method: "weighted", notices: null, blind: true, reveal: null, runs: 1 });
 let state = blank();
 try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) state = Object.assign(blank(), saved, { mode: "client" }); } catch { /* storage unavailable */ }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable */ } };
@@ -519,6 +519,7 @@ V.engagement = () => intro("Engagement", `Evaluation of ${esc(D.context.title)},
         <td>${late ? '<span class="pill bad">After the deadline</span>' : '<span class="pill ok">Registered</span>'}</td></tr>`; }).join("")}</tbody></table></div>
       <div class="tiny">Deadline recorded as ${esc(D.context.deadline_text)}. Evalia records a late receipt and carries it into responsiveness; whether to admit the tender is the client's decision, not Evalia's.</div>
       <div class="notice" role="note" style="margin:0"><strong>Designed, not built.</strong> In version one the evaluator registers each file on this screen and assigns its type and tenderer. This prototype received the files directly, and everything above was read from them.</div></div>
+    ${runsCard()}
     <div class="card"><div class="card-head"><h2>How the evaluation runs</h2></div>
       <ul class="ticks"><li>Evalia reads the request for proposal and proposes the framework; the client signs it off before any tender is opened.</li><li>Tenders are opened and checked for responsiveness, then evaluated stream by stream: technical, commercial, contract and integrity.</li><li>Each finding cites its page and quote, and each quote is checked against the page. Arithmetic, thresholds and points are computed by code.</li><li>The evaluator accepts, rejects or modifies every finding, with a reason; clarifications go to tenderers; the panel signs the report.</li></ul></div>
     ${next(S("documents"), "Read the tender documents")}`;
@@ -808,7 +809,7 @@ function reportHTML(P, ranked) {
     <h3>Clarifications</h3><ul>${NAMES.flatMap(clarItems).filter(f => (state.clar[f.id] || {}).include !== false).map(f => { const c = state.clar[f.id] || {}; return `<li>${esc(short(f.subject))}: ${esc(f.clarify)} <span class="tiny">(${esc(c.status || "Draft")}${c.answer ? "; answer: " + esc(c.answer) : ""})</span></li>`; }).join("")}</ul>
     <h3>Decision log</h3><div class="scroll"><table><thead><tr><th>Time (UTC)</th><th>Finding</th><th>Decision</th><th class="num">Points</th></tr></thead><tbody>${log.map(d => `<tr><td class="hash tiny">${esc(d.at.slice(11, 19))}</td><td>${esc(short(byId[d.id].subject))}: ${esc(byId[d.id].title)}${d.reason ? `<div class="tiny">${esc(d.reason)}</div>` : ""}</td><td>${DONE[d.action]}</td><td class="num">${fmt(finalPoints(byId[d.id]))}</td></tr>`).join("")}</tbody></table></div>
     <h3>Not assessed</h3><ul>${D.framework.not_assessed.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
-    <h3>Method</h3><ul>${state.blind ? `<li>${state.reveal ? `Quality streams were scored blind, with tenderers shown as A, B and C; identities were revealed by ${esc(state.reveal.by)} on ${esc(state.reveal.at)} with ${state.reveal.open} findings still open.` : "Quality streams are being scored blind; identities have not yet been revealed."}</li>` : ""}<li>Every quote was checked against the page it cites.</li><li>Arithmetic, thresholds, points and ranking were computed by code, never by a model.</li><li>Methods used: ${esc([...new Set(F.map(f => f.method))].join("; "))}.</li><li>The evaluator acknowledged that AI-assisted findings can be wrong before producing this draft.</li></ul></div>`;
+    <h3>Method</h3><ul>${state.blind ? `<li>${state.reveal ? `Quality streams were scored blind, with tenderers shown as A, B and C; identities were revealed by ${esc(state.reveal.by)} on ${esc(state.reveal.at)} with ${state.reveal.open} findings still open.` : "Quality streams are being scored blind; identities have not yet been revealed."}</li>` : ""}<li>${(state.runs || 1) === 3 ? "Scores were proposed from three runs: the median for each criterion, with wide differences between runs flagged for the panel." : "Scores were proposed from one run."}</li><li>Every quote was checked against the page it cites.</li><li>Arithmetic, thresholds, points and ranking were computed by code, never by a model.</li><li>Methods used: ${esc([...new Set(F.map(f => f.method))].join("; "))}.</li><li>The evaluator acknowledged that AI-assisted findings can be wrong before producing this draft.</li></ul></div>`;
 }
 function markdown() {
   const P = streamPoints(), ranked = NAMES.filter(eligible).sort((a, b) => total(P[b]) - total(P[a]));
@@ -859,6 +860,23 @@ $("#pagebox").onclick = (e) => { if (e.target.id === "pagebox") $("#pagebox").hi
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("#pagebox").hidden = true; });
 const decide = (id, d) => { state.decisions[id] = { action: d.action, reason: d.reason || "", evaluator: evaluator(), at: new Date().toISOString(), points: d.points ?? null, value: d.value ?? null, batch: !!d.batch }; delete state.editing[id]; };
 
+// --- scoring runs ---------------------------------------------------------------------------------------------------
+// One run by default; three where a procurement needs steadier proposals. The choice is written to the case folder's
+// settings.yaml, which score_submissions.py reads (evalia/engine/settings.py).
+const settingsYaml = () => `# Evalia settings for this procurement (${D.context.reference}). Place in the case folder.\nscoring:\n  samples: ${state.runs || 1}\n`;
+function runsCard() {
+  const three = (state.runs || 1) === 3;
+  return `<div class="card"><div class="card-head"><h2>How scores are proposed</h2><span class="aside">${three ? "three runs" : "one run (default)"}</span></div>
+    <div class="choice" role="group" aria-label="Scoring runs">${[1, 3].map(n => `<button aria-pressed="${(state.runs || 1) === n}" data-runs="${n}">${n === 1 ? "One run (default)" : "Three runs"}</button>`).join("")}</div>
+    <dl class="kv"><dt>One run</dt><dd>Evalia scores each submission once and proposes those scores. The lower cost and the quicker result; suitable for most procurements.</dd>
+    <dt>Three runs</dt><dd>Evalia scores each submission three times and proposes, for each criterion, the median of the three scores. Where the three differ by 2 points or 20 per cent of the criterion's maximum, whichever is smaller, the cell is flagged for the panel.</dd>
+    <dt>What three runs bring</dt><dd>Steadier proposals: on the one public tender tested, proposals varied about a third as much from set to set as single runs did (an indicative figure, from runs the sets shared). A flag that points the panel to the criteria on which the model's reading is unstable.</dd>
+    <dt>What they do not bring</dt><dd>Closer agreement with the panel: on that tender, rank agreement was 0.55 with three runs against 0.58 for single runs. Each finding still needs the panel's review.</dd>
+    <dt>Cost</dt><dd>About three times the scoring calls per submission, less where prompt caching applies; the runs take longer.</dd></dl>
+    <div class="small"><a href="#" data-settings>Download settings.yaml</a> for the case folder; the scoring run then uses this choice and records it in every result.</div>
+    <div class="notice" role="note" style="margin:0"><strong>Prototype.</strong> The proposals on these pages were produced with one run. The choice made here is recorded in the evaluation record and the report.</div></div>`;
+}
+
 function render() {
   steps();
   $("#main").innerHTML = (blindOn() ? `<div class="notice blind" role="note"><strong>Blind scoring.</strong> Tenderers are shown as A, B and C, and their names are masked in every quote, until the panel reveals identities at consolidation. The register, receipt and integrity checks use identities, because a track record cannot be anonymised.</div>` : "") + V[STAGES[state.stage].id]();
@@ -867,6 +885,8 @@ function render() {
   on("[data-resolve]", "onchange", el => { state.resolve[el.dataset.resolve] = el.value; save(); });
   if (sign) sign.onclick = () => { if (!evaluator()) { $("#signerr").textContent = "Enter your name under Evaluator before signing off."; return; }
     if (D.rfp_issues.some(i => !state.resolve[i.key])) { $("#signerr").textContent = "Choose the value that governs for each contradiction first."; return; } state.signoff = { by: evaluator(), at: nowText() }; save(); render(); };
+  on("[data-runs]", "onclick", b => { state.runs = +b.dataset.runs; save(); render(); });
+  on("[data-settings]", "onclick", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([settingsYaml()], { type: "text/yaml" })); a.download = "settings.yaml"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); return false; });
   on("[data-tab]", "onclick", b => { const [s, i] = b.dataset.tab.split("|"); state.tab[s] = +i; save(); render(); });
   on("[data-act]", "onclick", b => b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)));
   on("[data-edit]", "onclick", b => { state.editing[b.dataset.edit] = true; if (b.dataset.goto) { state.stage = +b.dataset.goto; state.tab[byId[b.dataset.edit].stream] = NAMES.indexOf(byId[b.dataset.edit].subject); } save(); render(); if (b.dataset.goto) setTimeout(() => document.getElementById("card-" + b.dataset.edit)?.scrollIntoView({ block: "center" }), 0); });
@@ -896,7 +916,7 @@ function render() {
   const approve = $("#approve"); if (approve) approve.onclick = () => { const by = $("#chair").value.trim(); if (!by) { $("#apperr").textContent = "Enter the panel chair's name."; return; } state.approval = { by, at: nowText() }; save(); render(); };
   const cp = $("#copymd"); if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(markdown()); $("#copied").textContent = "Copied."; } catch { $("#copied").textContent = "Copying is blocked here."; } };
   const sj = $("#savejson"); if (sj) sj.onclick = async () => {
-    const record = JSON.stringify({ engagement: D.context, signoff: state.signoff, status: state.status, decisions: state.decisions, blind: state.blind, reveal: state.reveal, clarifications: state.clar, recommendation: state.recommendation, approval: state.approval }, null, 1);
+    const record = JSON.stringify({ engagement: D.context, signoff: state.signoff, status: state.status, decisions: state.decisions, blind: state.blind, reveal: state.reveal, scoring_runs: state.runs || 1, clarifications: state.clar, recommendation: state.recommendation, approval: state.approval }, null, 1);
     if (window.top !== window) { try { await navigator.clipboard.writeText(record); $("#copied").textContent = "Decision record copied (downloads are not available in this viewer)."; } catch { $("#copied").textContent = "Copying is blocked here."; } return; }
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([record], { type: "application/json" })); a.download = `evalia-decisions-${D.context.reference}.json`; a.click();
   };
