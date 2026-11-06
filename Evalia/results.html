@@ -137,12 +137,30 @@ footer a, .card a { color: var(--primary-text) }
   </section>
 
   <section class="card">
+    <h2>Improvements tested on real evaluations</h2>
+    <p>Each change was tested against a rule written down before the run, and kept or rejected on that rule: on the same two public cases, and for scanned pages also on 50 fictional test pages whose text is known. Runs of 6 November 2026.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Change</th><th>What the test showed</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>Two-step scoring: the AI lists the evidence, code checks every quote, then the AI scores from checked evidence only</td><td>No quote left unfound on its page (one-step: one to three per run). Agreement with the panels within range (0.61 to 0.64 and 0.83 to 0.91). But scores varied 1.5 to 2 times as much between identical runs, and it cost about 45 per cent more.</td><td>Kept as an option; one-step stays the default</td></tr>
+          <tr><td>Median of three runs per submission</td><td>Reproduced exactly at no cost: agreement 0.55, within the single runs' range of 0.49 to 0.60; scores steadier between runs; 5 of 54 scores flagged where the runs disagree, for the panel to look at.</td><td>Available per procurement; one run by default</td></tr>
+          <tr><td>Caching the part of each request that is the same for every bidder</td><td>18 per cent lower cost over four runs ($12.22 against $14.96).</td><td>On by default</td></tr>
+          <tr><td>A cheaper model for reading scanned pages</td><td>On 50 fictional test scans: 844 of 849 figures read exactly, against 849 for the current model, at 54 per cent lower cost. One contract value was misread by $200.</td><td>Rejected: the current model stays</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><span class="tag fact">Fact</span> The tests also exposed a failure: the current AI model thinks before it answers, and on one long submission it used its whole allowance thinking and returned nothing, which was scored as zero. Evalia now refuses any answer cut off at its limit and asks again; the case recurred once in later runs and was caught.</p>
+  </section>
+
+  <section class="card">
     <h2>What the checks by code found</h2>
     <p>Arithmetic, dates, signatures and quotations are checked by code, never by the model. On real documents these checks found:</p>
     <ul>
       <li><span class="tag fact">Fact</span> <strong>A price error.</strong> One finalist's price form stated a fee $154 higher than its own percentage of the estimated construction cost gives, and a total $154 too high. The owner scored the corrected figures without recording the correction. Evalia found it without being told of it.</li>
       <li><span class="tag fact">Fact</span> <strong>The panel's own arithmetic.</strong> Of 108 recomputations of the published scoresheet (weighted scores, totals, ranks, rank sums, interview totals and averages), 106 agree. The two differences, a blank cell worth zero and a column heading that names the same firm twice, change no outcome.</li>
       <li><span class="tag fact">Fact</span> <strong>Unsigned forms.</strong> Required forms left unsigned on scanned pages of two real submissions, which the published scores did not reflect.</li>
+      <li><span class="tag fact">Fact</span> <strong>An AI reading error.</strong> Reading a city's solicitation, the AI counted one criterion twice, once whole and once through its two parts, giving 115 points against the stated 100. The arithmetic check flagged it; the solicitation itself was correct.</li>
       <li><span class="tag fact">Fact</span> <strong>A missed requirement.</strong> A firm formed in October 2022 bidding against a ten-year experience requirement: one evaluator marked it down, two did not.</li>
     </ul>
   </section>
