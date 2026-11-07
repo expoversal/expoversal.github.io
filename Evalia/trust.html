@@ -34,7 +34,7 @@ ul { margin: 0; padding-left: 1.1em } li { margin: 10px 0; max-width: 70ch }
 <nav><a href="index.html">Prototype</a><a href="results.html">Results</a><a href="changelog.html">What's new</a></nav></header>
 <h1>Trust documents</h1>
 <p class="lead">How Evalia handles a client's documents, what it may and may not be used for, the model profiles it runs on, and how to report an error. Issued 6 November 2026. Contents: <a href="#data-handling">Data-handling statement</a> · <a href="#acceptable-use">Acceptable use</a> · <a href="#system-card-anthropic-us">System card: model profile anthropic-us</a> · <a href="#system-card-self-hosted">System card: model profile self-hosted</a> · <a href="#feedback">Feedback and errors</a>.</p>
-<section class="card" id="data-handling"><h2>Data-handling statement</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong></p>
+<section class="card" id="data-handling"><h2>Data-handling statement</h2><p><strong>Issued 6 November 2026, signed off by Victor Frutos.</strong> The sections on what is sent to the provider and on retention were revised on 6 November 2026 and signed off on 7 November 2026.</p>
 <h3>Summary</h3>
 <p>Evalia is software that a client runs on its own computers. Tender documents stay where the client keeps them. Text from the documents leaves the client's computer only when Evalia asks an AI model to read it, and only to the model provider and region the client has permitted for that procurement. Evalia's staff have no access to a client's documents or results.</p>
 <h3>Where documents are kept</h3>
@@ -44,7 +44,7 @@ ul { margin: 0; padding-left: 1.1em } li { margin: 10px 0; max-width: 70ch }
 </ul>
 <h3>What is sent to an AI provider, and where</h3>
 <ul>
-<li>Text of the solicitation and submissions, and images of scanned pages that have no text layer, are sent to the model when Evalia asks it to read them.</li>
+<li>Text of the solicitation and submissions, and images of scanned pages that have no text layer, are sent to the model when Evalia asks it to read them. In the price stage, after the technical evaluation is closed, the text of each bidder's price documents is also sent, so that the model can list exclusions and qualifications; all price arithmetic is done by code on the client's computer.</li>
 <li>Each procurement permits one or more model profiles, each with a provider and region. <strong>Fact:</strong> if a call would go to a profile the procurement does not permit, Evalia refuses it rather than send it elsewhere (<code>ResidencyRefused</code> in <code>evalia/engine/llm.py</code>).</li>
 <li>Two profiles exist today: <code>anthropic-us</code> (Anthropic's API, United States) and <code>self-hosted</code> (a model the client runs on its own infrastructure, so nothing leaves it).</li>
 <li>The provider's own terms govern what it does with what it receives. For <code>anthropic-us</code>, as checked on 6 November 2026:</li>
@@ -56,7 +56,10 @@ ul { margin: 0; padding-left: 1.1em } li { margin: 10px 0; max-width: 70ch }
 <ul>
 <li>Every model call is kept in the procurement's folder: the prompt as sent, the model's raw answer, the model, region and time. This lets the client answer a records request or a protest with what the AI actually generated, not only what was used.</li>
 <li>Evaluators' decisions, reasons and the panel's records are kept in the same folder.</li>
-<li>Retention is the client's: Evalia does not delete the client's documents or records; it rewrites only its own output files when rerun. No retention schedule or legal hold is built into Evalia yet; it is planned (item L7 of the improvement report). Until then the client applies its own records policy to the folder.</li>
+<li>Retention is the client's. Evalia never deletes the client's documents or records; it rewrites only its own output files when rerun.</li>
+<li>For each procurement the client can record a keep-until date and the schedule or rule it comes from. Evalia sets no default. When the date has passed, Evalia lists the procurement as due for disposal; the client disposes of it, and of any backup copies, under its own records process. <strong>Fact:</strong> Evalia's records module has no deletion function, and a test checks that.</li>
+<li>The client can place a procurement on legal hold, with a reason. While it is on hold, Evalia refuses every change to its folder: no documents added, no runs, no decisions, no documents produced again. Reading and downloading still work. <strong>Fact:</strong> tested.</li>
+<li>Every retention date and hold is logged in the procurement's folder with the person and the time, and never overwritten.</li>
 </ul>
 <h3>Who can see what</h3>
 <ul>
