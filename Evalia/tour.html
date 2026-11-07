@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evalia Tour</title>
+<meta name="description" content="A tour of the Evalia application on a fictional tender: registering documents, confirming criteria, reviewing AI findings beside their pages, price checks, closing and debrief letters.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+:root {
+  --g50: hsl(214 33% 98%); --g100: hsl(214 30% 95%); --g200: hsl(214 26% 90%); --g300: hsl(214 20% 82%);
+  --g400: hsl(214 15% 64%); --g500: hsl(214 13% 49%); --g600: hsl(214 17% 37%); --g700: hsl(214 24% 27%);
+  --g800: hsl(214 32% 18%); --g900: hsl(214 42% 11%);
+  --p100: hsl(211 92% 95%); --p200: hsl(211 86% 87%); --p500: hsl(211 72% 46%); --p600: hsl(211 74% 38%); --p700: hsl(211 78% 30%);
+  --a100: hsl(42 96% 91%); --a600: hsl(34 92% 40%); --a800: hsl(28 86% 25%);
+  --gr100: hsl(141 56% 92%); --gr600: hsl(150 62% 31%); --gr800: hsl(152 64% 20%);
+  --page: var(--g100); --surface: #fff; --well: var(--g50); --text: var(--g900); --text-2: var(--g600); --text-3: var(--g500);
+  --line: var(--g200); --primary: var(--p600); --primary-soft: var(--p100); --primary-text: var(--p700);
+  --warn-soft: var(--a100); --warn-text: var(--a800); --ok-soft: var(--gr100); --ok-text: var(--gr800);
+  --shadow-rgb: 214 42% 11%;
+  --sh1: 0 1px 3px hsl(var(--shadow-rgb) / .12), 0 1px 2px hsl(var(--shadow-rgb) / .20);
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --t12: .75rem; --t14: .875rem; --t16: 1rem; --t18: 1.125rem; --t20: 1.25rem; --t24: 1.5rem; --t30: 1.875rem;
+  --radius: 4px;
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --page: var(--g900); --surface: var(--g800); --well: hsl(214 40% 13%); --text: var(--g100); --text-2: var(--g300); --text-3: var(--g400);
+  --line: var(--g700); --primary: var(--p500); --primary-soft: hsl(213 60% 22%); --primary-text: var(--p200);
+  --warn-soft: hsl(34 45% 18%); --warn-text: hsl(42 95% 82%); --ok-soft: hsl(150 40% 16%); --ok-text: hsl(141 60% 82%);
+  --shadow-rgb: 214 60% 3%; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --page: var(--g900); --surface: var(--g800); --well: hsl(214 40% 13%); --text: var(--g100); --text-2: var(--g300); --text-3: var(--g400);
+  --line: var(--g700); --primary: var(--p500); --primary-soft: hsl(213 60% 22%); --primary-text: var(--p200);
+  --warn-soft: hsl(34 45% 18%); --warn-text: hsl(42 95% 82%); --ok-soft: hsl(150 40% 16%); --ok-text: hsl(141 60% 82%);
+  --shadow-rgb: 214 60% 3%; color-scheme: dark }
+* { box-sizing: border-box }
+html { -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--page); color: var(--text); font: 400 var(--t16)/1.55 var(--sans) }
+.wrap { max-width: 800px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7) }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); margin-bottom: var(--s4) }
+.word { font-weight: 600; font-size: var(--t20); letter-spacing: -.01em }
+.sub { color: var(--text-2); font-size: var(--t14) }
+header a { margin-left: auto; font-size: var(--t14); color: var(--primary-text) }
+header a.new { color: hsl(4 70% 44%); font-weight: 600 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) header a.new { color: hsl(4 80% 64%) } }
+:root[data-theme="dark"] header a.new { color: hsl(4 80% 64%) }
+h1 { font-size: var(--t30); line-height: 1.2; font-weight: 600; letter-spacing: -.02em; margin: var(--s5) 0 var(--s3) }
+.lead { font-size: var(--t18); color: var(--text-2); margin: 0 0 var(--s5); max-width: 62ch }
+.asof { font-size: var(--t12); color: var(--text-3); text-transform: uppercase; letter-spacing: .06em }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--sh1); padding: var(--s5); margin-bottom: var(--s5) }
+h2 { font-size: var(--t20); font-weight: 600; margin: 0 0 var(--s2); line-height: 1.3 }
+.card > p:first-of-type { margin-top: 0 }
+p { margin: var(--s3) 0; max-width: 68ch }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--s3); margin: var(--s4) 0 0 }
+.kpi { background: var(--well); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4) }
+.kpi .v { font-size: var(--t24); font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums }
+.kpi .l { font-size: var(--t14); color: var(--text-2) }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--s5); margin-top: var(--s4) }
+figure { margin: 0 }
+figcaption { font-size: var(--t14); color: var(--text-2); margin-top: var(--s2) }
+figure h3 { font-size: var(--t16); font-weight: 600; margin: 0 0 var(--s1) }
+figure .m { font-size: var(--t14); color: var(--text-2); margin: 0 0 var(--s2) }
+svg text { font-family: var(--sans); fill: var(--text-2); font-size: 12px }
+svg .moved { stroke: var(--primary); stroke-width: 2.5 }
+svg .same { stroke: var(--g400); stroke-width: 1.5 }
+svg .dot { fill: var(--surface); stroke: var(--text-2); stroke-width: 1.5 }
+svg .colhead { fill: var(--text); font-weight: 600 }
+.tablewrap { overflow-x: auto; margin-top: var(--s3) }
+table { border-collapse: collapse; width: 100%; font-size: var(--t14) }
+th, td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line) }
+th { font-weight: 600; color: var(--text-2); white-space: nowrap }
+td.n { font-variant-numeric: tabular-nums; white-space: nowrap }
+.tag { display: inline-block; font-size: var(--t12); font-weight: 600; padding: 0 var(--s2); border-radius: 999px; vertical-align: 1px; margin-right: var(--s1) }
+.tag.fact { background: var(--ok-soft); color: var(--ok-text) }
+.tag.interp { background: var(--primary-soft); color: var(--primary-text) }
+.tag.limit { background: var(--warn-soft); color: var(--warn-text) }
+ul { padding-left: 1.2em; margin: var(--s3) 0 }
+li { margin: var(--s2) 0; max-width: 68ch }
+code { font-family: var(--mono); font-size: .9em }
+footer { font-size: var(--t14); color: var(--text-2); margin-top: var(--s6) }
+footer a, .card a { color: var(--primary-text) }
+@media (max-width: 520px) { h1 { font-size: var(--t24) } .card { padding: var(--s4) } }
+
+.step img { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:var(--radius); margin-top:var(--s3) }
+.step h2 .n { display:inline-block; min-width:1.8em; color:var(--text-2); font-variant-numeric:tabular-nums }
+.note { background:var(--warn-soft); color:var(--warn-text); border-radius:var(--radius); padding:var(--s3) var(--s4); font-size:var(--t14) }
+video { width:100%; height:auto; border-radius:var(--radius); background:#000; margin-top:var(--s3) }
+.wrap { max-width: 960px }
+.asof { color: var(--text-2) }
+header a + a { margin-left: 0 }
+.note a { color: inherit }
+</style>
+</head>
+<body>
+<main class="wrap">
+<header><span class="word">Evalia</span><span class="sub">AI reads the bids. Your panel decides.</span><a href="results.html">Results on real evaluations</a><a href="index.html">Earlier prototype</a><a class="new" href="changelog.html">What's new</a></header>
+<p class="asof">Screens of 7 November 2026</p>
+<h1>A tour of the application</h1>
+<p class="lead">Evalia runs on the evaluator's own computer, in the browser. These are its screens on one fictional procurement, a hotel fit-out with three bidders, from registering the documents to the debrief letters.</p>
+<p class="note"><strong>What these screens are.</strong> The tender and the bidders are fictional, generated by script. Evalia's findings on them were read by a live AI model on the evaluator's computer. The decisions shown were recorded for this demonstration and are not an evaluation. No client has used Evalia yet. Its results on real public evaluations are on the <a href="results.html">results page</a>.</p>
+<section class="card"><h2>How Evalia works, in two and a half minutes</h2><p>Narrated, with captions.</p>
+<video controls preload="metadata" poster="tour/hook.jpg"><source src="tour/evalia-demo.mp4" type="video/mp4"><track kind="captions" src="tour/evalia-demo.vtt" srclang="en" label="English" default></video></section>
+<section class="card step" id="s1"><h2><span class="n">1</span>Every step, with its status</h2><p>Each procurement opens on a list of its steps and where each stands, in words. Steps that cannot start yet say so.</p>
+<a href="tour/01-case-top.jpg"><img src="tour/01-case-top.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: every step, with its status, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s2"><h2><span class="n">2</span>Register the documents first</h2><p>The evaluator adds the solicitation and every submission, and says what each file is and which bidder sent it. Nothing is read until this register is confirmed. Price files stay sealed until the technical evaluation is closed.</p>
+<a href="tour/02-register.jpg"><img src="tour/02-register.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: register the documents first, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s3"><h2><span class="n">3</span>Confirm the criteria before any score</h2><p>Evalia reads the criteria and their points, each traced to its page, and code checks the scheme: points against the stated total, criteria missing or counted twice. The evaluator corrects or confirms them; no score is proposed before that.</p>
+<a href="tour/03-criteria.jpg"><img src="tour/03-criteria.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: confirm the criteria before any score, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s4"><h2><span class="n">4</span>Declare interests before seeing a bid</h2><p>Each evaluator declares any conflict of interest with the named bidders before any submission is shown. A declared conflict stops that evaluator&#x27;s review.</p>
+<a href="tour/04-declaration.jpg"><img src="tour/04-declaration.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: declare interests before seeing a bid, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s5"><h2><span class="n">5</span>On a gate, the evaluator decides first</h2><p>For a mandatory requirement, the evaluator reads the submission and records a decision before Evalia&#x27;s reading is shown.</p>
+<a href="tour/05-gate-hidden.jpg"><img src="tour/05-gate-hidden.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: on a gate, the evaluator decides first, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s6"><h2><span class="n">6</span>Then Evalia&#x27;s reading, and its evidence</h2><p>Evalia then shows its reading and the passage it relies on, highlighted on the page. Code has checked the passage word for word against that page. Departing from one&#x27;s own first decision needs a reason.</p>
+<a href="tour/06-gate-revealed.jpg"><img src="tour/06-gate-revealed.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: then evalia&#x27;s reading, and its evidence, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s7"><h2><span class="n">7</span>What each decision changed</h2><p>After each decision Evalia says what it recorded and what it changed, such as a requirement now settled for every bidder. Any decision can be undone; both are kept in the record.</p>
+<a href="tour/07-consequence.jpg"><img src="tour/07-consequence.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: what each decision changed, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s8"><h2><span class="n">8</span>One requirement, every bidder</h2><p>The evaluator can open one requirement and see every bidder&#x27;s finding beside its page. Findings can be accepted together only after each has been opened and ticked, with one reason for all.</p>
+<a href="tour/08-side-by-side.jpg"><img src="tour/08-side-by-side.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: one requirement, every bidder, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s9"><h2><span class="n">9</span>A blind check against rubber-stamping</h2><p>One in five findings accepted together is drawn at random and decided again with Evalia&#x27;s reading hidden. A check that disagrees reopens the others.</p>
+<a href="tour/10-blind-check.jpg"><img src="tour/10-blind-check.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: a blind check against rubber-stamping, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s10"><h2><span class="n">10</span>Prices, checked by code</h2><p>Once the technical evaluation is closed, code recomputes every priced line against the schedule issued. Here 24,200 times 180 is 4,356,000, not the 4,176,000 printed. The evaluator decides every price item; Evalia proposes no price adjustment.</p>
+<a href="tour/19-price-review.jpg"><img src="tour/19-price-review.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: prices, checked by code, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s11"><h2><span class="n">11</span>A panel that never sees each other&#x27;s work</h2><p>With several evaluators, a moderator gives each role its criteria. Each evaluator reviews alone, on their own computer, and returns a locked file. Colleagues&#x27; scores open only after one&#x27;s own return.</p>
+<a href="tour/20-panel.jpg"><img src="tour/20-panel.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: a panel that never sees each other&#x27;s work, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s12"><h2><span class="n">12</span>The evaluator&#x27;s own judgement, at closing</h2><p>Before closing, Evalia summarises the evaluator&#x27;s judgement: decisions made before its reading was shown, amendments with reasons, blind checks. It shows no agreement rate and no speed.</p>
+<a href="tour/12-judgement.jpg"><img src="tour/12-judgement.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: the evaluator&#x27;s own judgement, at closing, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s13"><h2><span class="n">13</span>Closed, with a complete record</h2><p>Closing writes the compliance record, every decision with its reason and time, the evaluation record and a statement on the use of AI. After that, no decision can be changed.</p>
+<a href="tour/14-closed-banner.jpg"><img src="tour/14-closed-banner.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: closed, with a complete record, on the fictional Lakeshore fit-out procurement."></a></section>
+<section class="card step" id="s14"><h2><span class="n">14</span>Debrief letters, drafted without AI</h2><p>Once the award is decided, Evalia drafts a letter for each bidder with its own scores and reasons, and only what the rules allow about the winner. Code refuses any letter that would name another bidder.</p>
+<a href="tour/18-debrief.jpg"><img src="tour/18-debrief.jpg" width="1600" height="900" loading="lazy" alt="Evalia screen: debrief letters, drafted without ai, on the fictional Lakeshore fit-out procurement."></a></section>
+<p class="sub">Evalia proposes; the evaluator decides every finding and score. The earlier prototype, with simulated readings, remains at <a href="index.html">its original address</a>.</p>
+</main>
+</body>
+</html>
