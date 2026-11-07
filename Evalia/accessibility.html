@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evalia accessibility</title>
+<meta name="description" content="Evalia accessibility conformance report: WCAG 2.2 AA, Section 508 and EN 301 549.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { --page: hsl(214 30% 95%); --surface: #fff; --text: hsl(214 42% 11%); --text-2: hsl(214 17% 37%); --text-3: hsl(214 13% 49%);
+  --line: hsl(214 26% 90%); --link: hsl(211 78% 30%); --sh: 0 1px 3px hsl(214 42% 11% / .12), 0 1px 2px hsl(214 42% 11% / .2);
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: hsl(214 42% 11%); --surface: hsl(214 32% 18%);
+  --text: hsl(214 30% 95%); --text-2: hsl(214 20% 82%); --text-3: hsl(214 15% 64%); --line: hsl(214 24% 27%); --link: hsl(211 86% 87%); color-scheme: dark } }
+:root[data-theme="dark"] { --page: hsl(214 42% 11%); --surface: hsl(214 32% 18%); --text: hsl(214 30% 95%); --text-2: hsl(214 20% 82%);
+  --text-3: hsl(214 15% 64%); --line: hsl(214 24% 27%); --link: hsl(211 86% 87%); color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--page); color: var(--text); font: 400 1rem/1.6 var(--sans) }
+.wrap { max-width: 800px; margin: 0 auto; padding: 32px 16px 48px }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 16px }
+.word { font-weight: 600; font-size: 1.25rem } .sub { color: var(--text-2); font-size: .875rem }
+header nav { margin-left: auto; font-size: .875rem; display: flex; gap: 12px }
+a { color: var(--link) }
+h1 { font-size: 1.875rem; line-height: 1.2; margin: 16px 0 8px; letter-spacing: -.02em }
+.lead { color: var(--text-2); font-size: 1.05rem; margin: 0 0 24px; max-width: 64ch }
+.card { background: var(--surface); border-radius: 4px; box-shadow: var(--sh); padding: 20px 24px; margin-bottom: 20px }
+h2 { font-size: 1.1rem; margin: 0 0 8px; color: var(--text-2); font-weight: 600 }
+ul { margin: 0; padding-left: 1.1em } li { margin: 10px 0; max-width: 70ch }
+@media (max-width: 520px) { h1 { font-size: 1.5rem } .card { padding: 16px } }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: .9rem; display: block; overflow-x: auto }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top }
+th { color: var(--text-2); font-weight: 600 }
+h3 { font-size: 1rem; margin: 16px 0 6px }
+code { font-size: .9em }
+</style>
+</head>
+<body><div class="wrap">
+<header><span class="word">Evalia</span><span class="sub">AI reads the bids. Your panel decides.</span>
+<nav><a href="index.html">Prototype</a><a href="results.html">Results</a><a href="changelog.html">What's new</a><a href="trust.html">Trust</a></nav></header>
+<h1>Accessibility conformance report</h1>
+<section class="card"><p>Following the ITI VPAT® 2.5 International edition (WCAG 2.2, Revised Section 508, EN 301 549).</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product</td>
+<td>Evalia, the local evaluation application: the procurement page and the review screen, in a web browser</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>Repository commit <code>3c3eca8</code> (7 November 2026)</td>
+</tr>
+<tr>
+<td>Report date</td>
+<td>7 November 2026</td>
+</tr>
+<tr>
+<td>Contact</td>
+<td>vfjhello@outlook.com</td>
+</tr>
+<tr>
+<td>Standards</td>
+<td>WCAG 2.2 Level A and AA; Revised Section 508 (36 CFR 1194), chapters 3, 5 and 6; EN 301 549 v3.2.1, clauses 4 to 12</td>
+</tr>
+<tr>
+<td>Evaluated by</td>
+<td>The Evalia team (self-assessment). No independent audit yet.</td>
+</tr>
+</tbody>
+</table>
+<h2>How Evalia was evaluated</h2>
+<p><strong>Fact.</strong> The checks below were run on the fictional example procurement, with a stand-in for the AI model, in Chromium (Playwright). Commands and results are in the repository.</p>
+<ul>
+<li><strong>Automated scan.</strong> <code>python scripts/a11y_scan.py</code> runs axe-core 4.10.2 with its WCAG 2.0, 2.1 and 2.2 A and AA rules on ten states: the list of procurements, settings, a procurement seen by a moderator and by an evaluator, and the review screen, each in the light and dark themes. Result: no violations. A further scripted run scanned the review screen with a finding open, the keyboard list open, a gate and a score before the evaluator's own decision, and the side-by-side view. Result: no violations.</li>
+<li><strong>Keyboard.</strong> A scripted run accepted, undid and amended a finding by keyboard alone, opened and closed the keyboard list with Escape, and walked the tab order. Every control is a native button, link or form field.</li>
+<li><strong>Zoom and reflow.</strong> At a width of 700 pixels (200 per cent zoom on a 1,400-pixel screen) and at 320 pixels, no page scrolls sideways; wide data tables scroll within themselves, as WCAG allows for data tables.</li>
+<li><strong>Text spacing.</strong> With the WCAG 1.4.12 spacing applied, no text was clipped.</li>
+</ul>
+<p><strong>Not done.</strong> Evalia has not yet been tested with a screen reader (NVDA, JAWS or VoiceOver) or with speech input, nor by people with disabilities. An automated scan finds only some failures. Until these tests are done, every "Supports" below rests on the checks above and on review of the code, and should be read as provisional.</p>
+<p><strong>Out of scope of this report.</strong> The documents Evalia writes (Word letters, Excel workbooks, the HTML and PDF records) and the Windows installer were not evaluated.</p>
+<h2>Terms</h2>
+<ul>
+<li><strong>Supports:</strong> the functionality meets the criterion without known defects.</li>
+<li><strong>Partially supports:</strong> some functionality does not meet the criterion.</li>
+<li><strong>Does not support:</strong> most functionality does not meet the criterion.</li>
+<li><strong>Not applicable:</strong> the criterion is not relevant to the product.</li>
+</ul>
+<h2>WCAG 2.2 report</h2>
+<p>Tables 1 and 2 also serve as the reports for Section 508 chapter 5 (501.1 and 504.2, through 502 and 503 as they rely on WCAG) and for EN 301 549 clauses 9 (web) and 11 (software), whose requirements for a browser-based application mirror WCAG 2.1 Level A and AA.</p>
+<h3>Table 1: Level A</h3>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Conformance</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.1.1 Non-text content</td>
+<td>Partially supports</td>
+<td>Page images of submissions carry a text alternative naming the document, the page and the quoted passage. The full text of a page is not offered as an alternative: an evaluator using a screen reader must open the original PDF in an accessible reader. Status symbols carry text.</td>
+</tr>
+<tr>
+<td>1.2.1 to 1.2.3 Audio and video</td>
+<td>Not applicable</td>
+<td>No audio or video.</td>
+</tr>
+<tr>
+<td>1.3.1 Info and relationships</td>
+<td>Supports</td>
+<td>Headings, lists, data tables with header cells, labelled form fields, landmarks. Some field names are derived from table headings and placeholders by script.</td>
+</tr>
+<tr>
+<td>1.3.2 Meaningful sequence</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>1.3.3 Sensory characteristics</td>
+<td>Supports</td>
+<td>Instructions do not rely on shape, position or colour alone.</td>
+</tr>
+<tr>
+<td>1.4.1 Use of colour</td>
+<td>Supports</td>
+<td>Status is given in words, and in the list by symbol as well as colour (✓ accepted, ✎ amended, ! to decide).</td>
+</tr>
+<tr>
+<td>1.4.2 Audio control</td>
+<td>Not applicable</td>
+<td></td>
+</tr>
+<tr>
+<td>2.1.1 Keyboard</td>
+<td>Supports</td>
+<td>Single-key shortcuts for each decision, as well as standard keyboard operation.</td>
+</tr>
+<tr>
+<td>2.1.2 No keyboard trap</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>2.1.4 Character key shortcuts</td>
+<td>Supports</td>
+<td>Active only when focus is not in a field; can be turned off in the keyboard list.</td>
+</tr>
+<tr>
+<td>2.2.1 Timing adjustable</td>
+<td>Supports</td>
+<td>No time limits. A suggestion to take a break is advisory and dismissible.</td>
+</tr>
+<tr>
+<td>2.2.2 Pause, stop, hide</td>
+<td>Partially supports</td>
+<td>While a reading or scoring run is in progress, its progress card updates every 1.5 seconds and cannot be paused; it stops when the run ends.</td>
+</tr>
+<tr>
+<td>2.3.1 Three flashes</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>2.4.1 Bypass blocks</td>
+<td>Supports</td>
+<td>Landmarks; a skip link on the review screen.</td>
+</tr>
+<tr>
+<td>2.4.2 Page titled</td>
+<td>Supports</td>
+<td>Titles name the page and the procurement.</td>
+</tr>
+<tr>
+<td>2.4.3 Focus order</td>
+<td>Supports</td>
+<td>When an item opens, focus moves to its heading in the decision panel, by design. While a run is in progress, the page keeps focus.</td>
+</tr>
+<tr>
+<td>2.4.4 Link purpose (in context)</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>2.5.1 Pointer gestures</td>
+<td>Supports</td>
+<td>No multipoint or path gestures.</td>
+</tr>
+<tr>
+<td>2.5.2 Pointer cancellation</td>
+<td>Supports</td>
+<td>Native controls act on release.</td>
+</tr>
+<tr>
+<td>2.5.3 Label in name</td>
+<td>Supports</td>
+<td>Visible labels begin the accessible names; key hints follow.</td>
+</tr>
+<tr>
+<td>2.5.4 Motion actuation</td>
+<td>Not applicable</td>
+<td></td>
+</tr>
+<tr>
+<td>3.1.1 Language of page</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>3.2.1 On focus</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>3.2.2 On input</td>
+<td>Supports</td>
+<td>Changing the review order reorders the list; no change of context.</td>
+</tr>
+<tr>
+<td>3.2.6 Consistent help</td>
+<td>Supports</td>
+<td>No help mechanism is repeated across pages; the user guide is a separate document.</td>
+</tr>
+<tr>
+<td>3.3.1 Error identification</td>
+<td>Supports</td>
+<td>Errors are described in text and announced as alerts.</td>
+</tr>
+<tr>
+<td>3.3.2 Labels or instructions</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>3.3.7 Redundant entry</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>4.1.2 Name, role, value</td>
+<td>Supports</td>
+<td>Native controls; progress bar and live regions marked up.</td>
+</tr>
+</tbody>
+</table>
+<h3>Table 2: Level AA</h3>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Conformance</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.2.4 and 1.2.5 Captions and audio description</td>
+<td>Not applicable</td>
+<td></td>
+</tr>
+<tr>
+<td>1.3.4 Orientation</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>1.3.5 Identify input purpose</td>
+<td>Supports</td>
+<td>The evaluator's name field is marked <code>autocomplete="name"</code>.</td>
+</tr>
+<tr>
+<td>1.4.3 Contrast (minimum)</td>
+<td>Supports</td>
+<td>Interface text in both themes, checked by axe-core. Submission pages are shown as the bidder supplied them.</td>
+</tr>
+<tr>
+<td>1.4.4 Resize text</td>
+<td>Supports</td>
+<td>Checked at 200 per cent.</td>
+</tr>
+<tr>
+<td>1.4.5 Images of text</td>
+<td>Supports</td>
+<td>Page images reproduce bidders' documents, whose presentation is essential to the evaluation; the quoted passage is also given as text.</td>
+</tr>
+<tr>
+<td>1.4.10 Reflow</td>
+<td>Supports</td>
+<td>Checked at 320 pixels. Data tables and page images scroll in two dimensions, as the criterion allows.</td>
+</tr>
+<tr>
+<td>1.4.11 Non-text contrast</td>
+<td>Supports</td>
+<td>Field borders, focus ring and status symbols meet 3:1. The highlight on a page image is low-contrast, but the passage it marks is also given as text beside it.</td>
+</tr>
+<tr>
+<td>1.4.12 Text spacing</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>1.4.13 Content on hover or focus</td>
+<td>Supports</td>
+<td>Only the browser's own tooltips.</td>
+</tr>
+<tr>
+<td>2.4.5 Multiple ways</td>
+<td>Supports</td>
+<td>The list of procurements, each procurement's steps, and the review list and its order.</td>
+</tr>
+<tr>
+<td>2.4.6 Headings and labels</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>2.4.7 Focus visible</td>
+<td>Supports</td>
+<td>A three-pixel outline in both themes.</td>
+</tr>
+<tr>
+<td>2.4.11 Focus not obscured (minimum)</td>
+<td>Supports</td>
+<td>The keyboard list, when the user opens it, may cover part of the decision panel; Escape closes it and returns focus.</td>
+</tr>
+<tr>
+<td>2.5.7 Dragging movements</td>
+<td>Not applicable</td>
+<td>No dragging.</td>
+</tr>
+<tr>
+<td>2.5.8 Target size (minimum)</td>
+<td>Supports</td>
+<td>Buttons at least 32 pixels high; small buttons at least 24 pixels.</td>
+</tr>
+<tr>
+<td>3.1.2 Language of parts</td>
+<td>Partially supports</td>
+<td>Quotations from submissions in another language are not marked with their language.</td>
+</tr>
+<tr>
+<td>3.2.3 Consistent navigation</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>3.2.4 Consistent identification</td>
+<td>Supports</td>
+<td></td>
+</tr>
+<tr>
+<td>3.3.3 Error suggestion</td>
+<td>Supports</td>
+<td>Messages say what to do.</td>
+</tr>
+<tr>
+<td>3.3.4 Error prevention (legal, financial, data)</td>
+<td>Supports</td>
+<td>Decisions can be undone or replaced, and every one is kept; closing an evaluation is refused while anything is undecided or unexplained.</td>
+</tr>
+<tr>
+<td>3.3.8 Accessible authentication (minimum)</td>
+<td>Supports</td>
+<td>No sign-in. The AI provider's key is pasted, not recalled.</td>
+</tr>
+<tr>
+<td>4.1.3 Status messages</td>
+<td>Supports</td>
+<td>Recorded decisions, progress of a run and errors are announced through live regions.</td>
+</tr>
+</tbody>
+</table>
+<h2>Revised Section 508</h2>
+<table>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>Conformance</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 Functional performance criteria</td>
+<td>Partially supports</td>
+<td>Without vision (302.1): partially supports, because the full text of submission pages is reached through the original PDF, not within Evalia. Other criteria: supports, subject to testing with assistive technology.</td>
+</tr>
+<tr>
+<td>4 Hardware</td>
+<td>Not applicable</td>
+<td></td>
+</tr>
+<tr>
+<td>5 Software (501, 502, 503)</td>
+<td>See WCAG tables</td>
+<td>Evalia runs in the user's browser and relies on the browser's and platform's accessibility services; it sets no colours or fonts that override user preferences beyond its own stylesheet, and offers light and dark themes.</td>
+</tr>
+<tr>
+<td>6 Support documentation and services</td>
+<td>Not evaluated</td>
+<td>The user guide (Markdown) has not yet been assessed.</td>
+</tr>
+</tbody>
+</table>
+<h2>EN 301 549 v3.2.1</h2>
+<table>
+<thead>
+<tr>
+<th>Clause</th>
+<th>Conformance</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.2 Functional performance statements</td>
+<td>Partially supports</td>
+<td>As Section 508 chapter 3.</td>
+</tr>
+<tr>
+<td>5 Generic requirements</td>
+<td>Supports</td>
+<td>No biometrics; no locked or closed functionality.</td>
+</tr>
+<tr>
+<td>6 Two-way voice communication, 7 Video, 8 Hardware</td>
+<td>Not applicable</td>
+<td></td>
+</tr>
+<tr>
+<td>9 Web and 11 Software</td>
+<td>See WCAG tables</td>
+<td></td>
+</tr>
+<tr>
+<td>10 Non-web documents</td>
+<td>Not evaluated</td>
+<td>The documents Evalia writes.</td>
+</tr>
+<tr>
+<td>12 Documentation and support services</td>
+<td>Not evaluated</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>What is planned</h2>
+<ul>
+<li>Testing with NVDA and VoiceOver, and by at least one evaluator who uses assistive technology, before the first client pilot.</li>
+<li>The full text of each submission page, from its text layer, offered beside the page image.</li>
+<li>Language marking of quotations not in English.</li>
+<li>Assessment of the documents Evalia writes, starting with the debrief letters.</li>
+</ul>
+<p>VPAT® is a registered trademark of the Information Technology Industry Council (ITI).</p></section>
+</div></body></html>
