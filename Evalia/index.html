@@ -259,6 +259,10 @@ select { font: inherit; font-size: var(--t14); color: var(--text); background: v
 :root[data-present="on"] .sub, :root[data-present="on"] nav.steps button { font-size: var(--t16) }
 :root[data-present="on"] .quote q { font-size: var(--t16) }
 @media (max-width: 760px) { :root[data-present="on"] { font-size: 100% } }
+  .featgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s4); }
+  .featgrid .card { margin: 0; }
+  ul.feat { margin: 0; padding-left: 1.1em; }
+  ul.feat li { margin: 0 0 var(--s2); line-height: 1.45; }
 </style>
 </head>
 <body>
@@ -291,6 +295,7 @@ select { font: inherit; font-size: var(--t14); color: var(--text); background: v
 
 const STAGES = [
   { id: "overview", phase: "Overview", title: "Overview" },
+  { id: "features", phase: "Overview", title: "Features built" },
   { id: "engagement", phase: "Prepare", title: "Engagement" },
   { id: "documents", phase: "Prepare", title: "Tender documents" },
   { id: "framework", phase: "Prepare", title: "Evaluation framework" },
@@ -326,7 +331,7 @@ const short = (n) => String(n).replace(" (fictional)", "");
 // While blind scoring is on and identities have not been revealed, the stages that score quality show tenderers as A, B
 // and C, and every rendered string has the tenderers' names replaced. Stages that need identities (the register, receipt,
 // integrity checks) are exempt: a track record cannot be anonymised, so qualification is by identity and scoring is not.
-const BLIND_EXEMPT = new Set(["engagement", "documents", "receipt", "integrity"]);
+const BLIND_EXEMPT = new Set(["features", "engagement", "documents", "receipt", "integrity"]);
 const blindOn = () => !!state.blind && !state.reveal && !BLIND_EXEMPT.has(STAGES[state.stage].id);
 const label = (n) => "Tenderer " + String.fromCharCode(65 + NAMES.indexOf(n));
 let ALIASES = null;
@@ -442,6 +447,88 @@ const tick = (ok) => ok ? '<span class="pill ok">✓ Yes</span>' : '<span class=
 
 // --- stages: prepare --------------------------------------------------------------------------------------------------
 const V = {};
+
+// --- the features built in the local application, in brief ------------------------------------------------------------
+// A synthesis of CHANGELOG.md. Each line describes something built and tested; none claims use on a live tender.
+const FEATURES = [
+  ["Foundations", [
+    ["An industry-neutral engine, construction knowledge in a separate pack, and one gateway for every AI call that keeps documents where the client allows.", "29 Oct"],
+    ["Runs as a page in the evaluator's browser, on their own computer: create a procurement, add the files, say which is which, without the command line.", "6 Nov"],
+    ["Windows installer without administrator rights, with a fictional example procurement; the AI key kept in Windows Credential Manager; removal safe to repeat.", "6 Nov"],
+    ["One look on every computer, with its own typeface and no network needed; each procurement page lists its steps and their status in words.", "7 Nov"],
+    ["Accessibility checked against WCAG 2.2 AA in light and dark themes, by keyboard, at 200 per cent zoom and on narrow screens.", "7 Nov"]]],
+  ["Reading the documents", [
+    ["A document register, with a fingerprint of every file, confirmed by a person before anything is read.", "6 Nov"],
+    ["Criteria, points and requirements read from the solicitation, each with a quote checked by code on its page; addenda read with the later document prevailing; scanned and signed pages read.", "5 Nov"],
+    ["The scoring scheme checked by code: points against the stated total, weights adding to 100, criteria missing, duplicated or counted twice, stages scored separately.", "6 Nov"],
+    ["Confirmed criteria stay confirmed when a re-reading is identical, and lapse when anything differs.", "6 Nov"],
+    ["Responsiveness pre-check by code: documents and pages, page limit, required forms by name, addenda acknowledged by number in five languages, validity period.", "8 Nov"],
+    ["Two versions of the solicitation compared sentence by sentence, each change with its page.", "8 Nov"],
+    ["Sentences shared word for word between bidders flagged as an integrity indicator, leaving out wording from the solicitation and form text every bidder shares.", "8 Nov"],
+    ["English, Spanish and Arabic documents (right-to-left text put back in reading order); numbers read the local way, and left unread rather than misread; dates written with the month as a word.", "6–8 Nov"]]],
+  ["Findings and proposed scores", [
+    ["Each submission read against every requirement, with the mandatory ones read as not met listed first; each finding labelled Fact or Interpretation.", "6 Nov"],
+    ["Compliance-only mode: requirements, arithmetic and a compliance matrix, with no proposed scores.", "6 Nov"],
+    ["Proposed scores with reasons and quoted evidence; one run or three, with the median proposed and disagreements between runs flagged.", "6 Nov"],
+    ["Options: evidence first, checked by code, then scores; or evidence cited sentence by sentence through the AI provider's citation feature.", "6 Nov"],
+    ["Submissions scored in parallel, temporary errors retried, answers cut off at their limit refused, repeated text cached to lower the cost.", "5–6 Nov"]]],
+  ["The evaluator decides", [
+    ["Each proposal shown beside the page it cites, quote first; the evaluator scores, and decides gates, before Evalia's view is shown.", "6–7 Nov"],
+    ["Four compliance decisions, a reason for every departure, items in random order, one key per decision so agreeing is no quicker than disagreeing.", "6–7 Nov"],
+    ["One requirement for every bidder side by side; findings accepted together must each be opened, and one in five is re-checked blind.", "6–7 Nov"],
+    ["When an evaluator changes one in five readings of a kind, the rest of that kind are decided one by one; nothing learnt is carried to another procurement.", "7 Nov"],
+    ["The screen shows what is left to decide and why the close is refused.", "7 Nov"],
+    ["Blind scoring: firms' names hidden until the panel reveals them, with the reveal logged.", "31 Oct"],
+    ["A declaration of interests before any submission is shown; a declared conflict stops that evaluator's review.", "7 Nov"],
+    ["A clarification log: a request drafted from verified quotes, then the reply and the outcome with a reason, each with its time; replies that offer a price change flagged.", "8 Nov"]]],
+  ["Prices", [
+    ["Priced bills and bid tabulations in Excel or CSV recomputed line by line; unpriced and one-cent rates, rates far from the estimate and rates identical between bidders listed.", "5 Nov"],
+    ["Two envelopes: price documents sealed until the technical evaluation is closed, then checked against the schedule issued for items omitted, blank, marked included or altered, and provisional sums changed.", "6 Nov"],
+    ["Exclusions and qualifications listed by the AI, each with a quote checked on its page; a levelling workbook in which every figure carries its source.", "6 Nov"],
+    ["Lines added outside the bill reviewed one by one, with a clarification that cannot invite a change of price.", "7 Nov"],
+    ["Adjustments for comparison recorded only by the evaluator, with basis and reason; the tendered price never changes.", "7 Nov"],
+    ["Price points under the solicitation's own formula, with the working written out.", "8 Nov"],
+    ["The owner's estimate with published analysis thresholds; quantity corrections applied to every bidder and the ranking recomputed; a price far below the others opens a request for an explanation, never a rejection.", "8 Nov"],
+    ["Lines a bidder did not price shown with the other bids' and the estimate's figures at the tender quantity, for reference only.", "8 Nov"],
+    ["A bid tabulation in the form public owners publish: totals as read and as recomputed, ranked on the totals as read.", "8 Nov"]]],
+  ["A panel, kept apart", [
+    ["A moderation pack that puts the largest disagreements first; the chair cannot record an agreed score without a reason.", "5 Nov"],
+    ["Several evaluators by role, each with a package holding only their role's documents and proposals, returned as a locked file.", "7 Nov"],
+    ["Colleagues' scores and reasons opened only after one's own return is made.", "7 Nov"],
+    ["For the chair, once every return is in: the spread of scores on each criterion, and the range of agreement between evaluators beside Evalia's.", "8 Nov"]]],
+  ["Closing and the record", [
+    ["Checks that hold up under protest: every score on a published criterion and within its range; bidders in the same position decided alike, or the difference explained.", "6 Nov"],
+    ["The evaluation cannot close while anything is undecided; once closed, nothing can change, whoever opens it.", "6–7 Nov"],
+    ["An audit file that an independent check, needing only the documents, confirms: documents seen, answers recorded, quotes on their pages, arithmetic right.", "5 Nov"],
+    ["Every AI request and answer kept, and an export of every proposal and what the panel did with it.", "6 Nov"],
+    ["A statement on the use of AI for each procurement, naming who decided.", "6 Nov"],
+    ["Debrief letters in Word for every bidder (US debriefing or UK assessment summary), built by code that refuses to disclose another bidder.", "6–7 Nov"],
+    ["Retention dates and legal hold; Evalia never deletes anything. Pilots sealed until the award is recorded.", "6–8 Nov"]]],
+  ["The owner's data stays with the owner", [
+    ["Each procurement says where its documents may be processed; any other call is refused, never redirected.", "29 Oct"],
+    ["An owner's own AI model, in its own country or on its own servers, as well as a hosted one.", "8 Nov"],
+    ["Local server closed to other websites; every library pinned and matched against its fingerprint at installation.", "8 Nov"],
+    ["A data-handling statement covering retention, legal hold and prices.", "7 Nov"]]],
+  ["Training and testing", [
+    ["Training procurements with planted errors, on fictional tenders only, report what each evaluator caught.", "7–8 Nov"],
+    ["A regression test bench reruns every known case before any change is kept.", "5 Nov"],
+    ["Fictional tenders in US units, in metric units and euros, in Spanish priced the Chilean way, and an Arabic page, each with known faults.", "7–8 Nov"],
+    ["Measurement plans fixed before any pilot data is seen.", "8 Nov"]]],
+  ["Measured on published public evaluations", [
+    ["Criteria and points of four public solicitations read correctly, and every obligation on an independent hand list found.", "5 Nov"],
+    ["Rankings compared with real panels: rank correlation 0.88 to 0.92 on eight consultants; 0.725 on 13 firms; close to nil where five firms were nearly indistinguishable.", "5–6 Nov"],
+    ["A repeat run moves a criterion score by at most two points; ranking correlation 0.96 between runs.", "5 Nov"],
+    ["On a state transportation department's tabulation, all 368 line amounts and three totals agreed to the cent; on a panel's own scoresheet, 106 of 108 calculations agreed.", "5 Nov"],
+    ["The arithmetic check caught an AI reading that counted one criterion twice.", "6 Nov"]]],
+  ["On the website", [
+    ["This prototype: the whole evaluation on fictional documents, with an overview of where it stands and a recording mode.", "31 Oct–1 Nov"],
+    ["A results page for the real evaluations, and a tour of the application's own screens with a video.", "5–7 Nov"]]],
+];
+V.features = () => intro("Features built", "Every feature built since the project started on 29 October 2026, grouped and dated. They are in the Evalia application on the evaluator's computer, built and tested on fictional and published documents; none has yet been used on a live tender. Fixes and documentation changes are in the <a href=\"changelog.html\">changelog</a>. This prototype walks through an evaluation on fictional documents.")
+  + `<div class="featgrid">${FEATURES.map(([h, xs]) => `<div class="card"><div class="card-head"><h2>${esc(h)}</h2><span class="aside">${xs.length}</span></div><ul class="feat">${xs.map(([x, d]) => `<li>${esc(x)} <span class="tiny muted">${esc(d)}</span></li>`).join("")}</ul></div>`).join("")}</div>`
+  + next(S("engagement"), "Start the walk-through");
+
+
 
 // --- stages: overview -------------------------------------------------------------------------------------------------
 // Every figure here is computed from this run and this panel's decisions. Nothing is a benchmark,
