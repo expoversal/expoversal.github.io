@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Evalia Changelog</title>
 <meta name="description" content="What has changed in Evalia, newest first.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..600&family=Inter:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&family=IBM+Plex+Mono:wght@400&display=swap">
 <style>
 :root { --page: hsl(214 30% 95%); --surface: #fff; --text: hsl(214 42% 11%); --text-2: hsl(214 17% 37%); --text-3: hsl(214 13% 49%);
   --line: hsl(214 26% 90%); --link: hsl(211 78% 30%); --sh: 0 1px 3px hsl(214 42% 11% / .12), 0 1px 2px hsl(214 42% 11% / .2);
@@ -27,6 +27,43 @@ h1 { font-size: 1.875rem; line-height: 1.2; margin: 16px 0 8px; letter-spacing: 
 h2 { font-size: 1.1rem; margin: 0 0 8px; color: var(--text-2); font-weight: 600 }
 ul { margin: 0; padding-left: 1.1em } li { margin: 10px 0; max-width: 70ch }
 @media (max-width: 520px) { h1 { font-size: 1.5rem } .card { padding: 16px } }
+/* ---------------------------------------------------------------- editorial theme (18 November 2026)
+   The same style as the prototype page and the printed reports: white paper, black type, Bodoni Moda for the wordmark
+   and headlines, Inter for text and interface, hairline rules instead of shadows, square corners, flat pastel panels. */
+:root {
+  --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif; --serif: "Source Serif 4", Georgia, serif;
+  --sans: "Inter", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mint: #9dcbb6; --mustard: #f6cf6a; --coral: #ef8259; --sky: #7fc1e6; --pale: #f4f3ef;
+  --page: #ffffff; --surface: #ffffff; --well: var(--pale); --text: #111111; --text-2: #4a4a4a; --text-3: #6a6a6a; --line: #dadada;
+  --primary: #111111; --primary-soft: #e3f1ea; --primary-text: #111111; --link: #111111;
+  --warn-soft: #fcefc6; --warn-text: #6b4700; --ok-soft: #dcefe6; --ok-text: #1f4d3c;
+  --sh: none; --sh1: none; --radius: 0px; --g400: #9a9a9a; --p500: #111111 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --page: #141414; --surface: #1c1c1c; --well: #262626; --text: #f2f2f2; --text-2: #c4c4c4; --text-3: #9a9a9a; --line: #3a3a3a;
+  --primary: #f2f2f2; --primary-soft: #23382f; --primary-text: #f2f2f2; --link: #f2f2f2;
+  --warn-soft: #3b3017; --warn-text: #ffe3a1; --ok-soft: #1d3329; --ok-text: #c3ead8; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --page: #141414; --surface: #1c1c1c; --well: #262626; --text: #f2f2f2; --text-2: #c4c4c4; --text-3: #9a9a9a; --line: #3a3a3a;
+  --primary: #f2f2f2; --primary-soft: #23382f; --primary-text: #f2f2f2; --link: #f2f2f2;
+  --warn-soft: #3b3017; --warn-text: #ffe3a1; --ok-soft: #1d3329; --ok-text: #c3ead8; color-scheme: dark }
+body { font-family: var(--sans) }
+header { padding-bottom: 12px; border-bottom: 3px double var(--text); align-items: baseline }
+.word { font: 500 2.4rem/1 var(--display); letter-spacing: -.01em }
+.sub { font: 600 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--text) }
+header a, header nav a { color: var(--text); text-decoration: none; border-bottom: 1px solid currentColor }
+header a.new { color: #b03f22; border-bottom-color: #b03f22 }
+a { color: var(--link); text-underline-offset: 3px }
+h1 { font: 500 2.3rem/1.15 var(--display); letter-spacing: -.005em }
+h2 { font: 500 1.45rem/1.2 var(--display); color: var(--text) }
+.asof, th { color: var(--text); letter-spacing: .08em; text-transform: uppercase; font-size: .72rem }
+.card { box-shadow: none; border-radius: 0; border-top: 2px solid var(--text); background: var(--surface) }
+table th { border-top: 2px solid var(--text); border-bottom: 1px solid var(--text) }
+.kpi { border: 0; background: var(--mint); color: #111; text-align: center }
+.kpis .kpi:nth-child(4n+2) { background: var(--mustard) } .kpis .kpi:nth-child(4n+3) { background: var(--coral) } .kpis .kpi:nth-child(4n+4) { background: var(--sky) }
+.kpi .v { font: 500 2.2rem/1.1 var(--display); color: #111 } .kpi .l { color: #111 }
+.tag { border-radius: 0 }
+.note { border-left: 3px solid var(--mustard) }
+img, video { border-radius: 0 !important }
 </style>
 </head>
 <body><div class="wrap">
